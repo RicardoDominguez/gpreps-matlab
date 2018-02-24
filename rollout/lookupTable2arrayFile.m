@@ -1,0 +1,47 @@
+%% lookupTable2arrayFile.m
+% *Summary:* Exports look-up table parametrized by the number of X points,
+% the spacing between this points, and the corresponding Y points into a C
+% header file and array.
+%
+% *Input arguments:*
+%   -nX: number of X axis data points in the look-up table
+%   -deltaX: spacing between the X axis data points
+%   -Y: Y axis data points
+%
+% The output files can be called in the controller main function in the
+% following manner:
+%   #include "lookupTable.h"
+%   int lookupTableSize; returnLookUpTableSize(&lookupTableSize);
+%   float lookupTableDX; int lookupTableY[lookupTableSize];
+%   returnLookUpTableData(&lookupTableDX, lookupTableY);
+%
+% By Ricardo Dominguez Olmedo
+%
+% Last modified: 2018-02
+%
+function lookupTable2arrayFile(nX, deltaX, Y)
+    % Make Y look-up table integers
+    Y = round(Y);
+    
+    % Create header file
+    headerID = fopen('lookupTable.h', 'w');
+    fprintf(headerID, '#ifndef LOOKUPTABLE_\n');
+    fprintf(headerID, '#define LOOKUPTABLE_\n');
+    fprintf(headerID, 'void returnLookUpTableSize(int *nx);\n');
+    fprintf(headerID, 'void returnLookUpTableData(float *dx, int yarray[]);\n');
+    fprintf(headerID, '#endif\n');
+	fclose(headerID);
+    disp 'lookupTable.h created'
+    % Create .c file
+    cID = fopen('lookupTable.c', 'w');
+    fprintf(cID, '#include "lookupTable.h"\n\n');
+    fprintf(cID, 'void returnLookUpTableSize(int *nx){(*nx) = %d;}\n', nX);
+    fprintf(cID, 'void returnLookUpTableData(float *dx, int yarray[]){\n');
+    fprintf(cID, '\t*dx = %f;\n', deltaX);
+    for i = 1:nX
+    	fprintf(cID, '\t*(yarray + %d) = %d;\n', i-1, Y(i));
+    end
+    fprintf(cID, '}');
+    fclose(cID);
+    disp 'lookupTable.c created'
+end

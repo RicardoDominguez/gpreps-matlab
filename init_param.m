@@ -1,53 +1,51 @@
-addpath('pol', 'minim', 'cost', 'model');
+%% init_param.m
+% *Summary:* Script to initialize the scenario in which to apply GPREPS.
+%
+% By Ricardo Dominguez Olmedo
+%
+% Last modified: 2018-02
+%
 
-run_values.max_sim_time = 140; % in seconds
-run_values.dt = 1;
-run_values.start_distance = 0; % in meters
-run_values.end_distance = 940; % in meters
-model_name = 'v013a.slx';
+disp 'Initializing algorithm...'
 
-load('new_track.mat')
-track_profile.distance = distance;
-track_profile.road_angle = road_profile;
-track_profile.spacing = distance(2)-distance(1);
+% Clear workspace and add relevant subfolders
+clear; addpath('pol', 'minim', 'cost', 'rollout');
 
-pol.minU = 0; % Minimum control action
-pol.maxU = 1000; % Maximum control action
-pol.sample = @policy; % Control action sample function
-pol.n_tiles = 30; % Number of tiles
-pol.thr = linspace(run_values.start_distance, run_values.end_distance, ...
-    pol.n_tiles+1);
-pol.thr = pol.thr(2:end); % Thereshold of each tile
-pol.spacing = pol.thr(2) - pol.thr(1);
-pol.W = ones(pol.n_tiles, 1) .* 700;
-
-% Indexes [x, v, E, theta, U]
-dyni = [2, 4, 5];      % Inputs
+%% Indexes for GP training [x, v, E, U]
+dyni = [2, 5];      % Inputs
 dyno = [1, 2, 3];   % Outputs
-diffi = [1, 2, 3];  % Trained by differences
-difi = diffi;
+difi = [1, 2, 3];  % Trained by differences
+
+%% Parameters of the simulated rollout
+simroll.max_sim_time = 30;          % (in seconds)
+simroll.dt = 1;                     % (in seconds)
+simroll.start_dist = 0;             % (in meters)
+simroll.end_dist = 20;              % (in meters)
+simroll.initX = zeros(size(dyno));  % Initial system state
+simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
+
+%% Parameters of the low level policy
+pol.minU = 0;           % Minimum control action
+pol.maxU = 4200;        % Maximum control action
+pol.sample = @policy; 
+pol.nX = 30;            % Numer of data points in the X-axis lookup table
+pol.lookupX = linspace(simroll.start_dist, ...
+    simroll.end_dist, pol.nX + 1);            
+pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
+pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up 
+                                              % table X axis
 
 %% Higher level policy
-hipol.muW = pol.W;
-nW = size(hipol.muW, 1); % Parameter mean
-deviation = 200; % Allows to tune the covariance matrix. Higher, more exploration
-hipol.sigmaW = eye(nW) .* (deviation^2); % Parameter covariance matrix
-hipol.sample = @highpol; % Policy weights sample function
+deviation = 200; % Allows to tune the high level policy covariance matrix. 
+                 % Higher, more exploration
+hipol.sigmaW = eye(pol.nX) .* (deviation^2); % High level policy cov matrix
+hipol.sample = @highpol;
 
-%% Sampling trayectories variables
-initialS = [0, 0, 0]; % Initial state
-H = run_values.max_sim_time / run_values.dt; % Maximum number of steps
-
-%% Relative entropy bound.
-eps = 3; % Lower eps results in more exploration.
+%% Relative entropy bound
+eps = 1; % Relative entropy bound
+         % Lower results in more exploration
 dual_fcn = @dual_function;
 
 %% Number of iterations
-K = 10;  % Policy iterations
-M = 10000; % Reward prediction samples
-NdataRolls = 1;
-Ninitial = 3;
-
-%% GP
-%init_gp;
-%train_forward_model;
+K = 10;             % Number of policy iterations
+M = 10000;          % Number of simulated rollouts

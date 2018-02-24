@@ -1,20 +1,19 @@
 %% gpreps.m
-% *Summary:* Main script for the implementation of GPREPS.
+% *Summary:* Main script for the implementation of GPREPS (from
+% initializing the scenario up until the first policy export)
 %   
 % By Ricardo Dominguez Olmedo
 %
-% Last modified: 2017-10
+% Last modified: 2018-02
 %
-clear
 
-init_param; % Initialize the scenario in which to apply GPREPS
-
-store_pols = cell(K, 1); % Stores the mean weight of the high level policy
-initial_rollout;
-for k = 1:K
-    fprintf('Iteration %d of %d. ', k, K)
-    disp 'Predict rewards'; predict_reward;
-    disp 'Updating policy'; update_policy; store_pols{k, 1} = hipol.muW;
-    disp 'Rollout'; system_rollout;
-    disp 'Train models'; train_forward_model;
-end
+init_param;             % Initialize scenario
+init_arbitrary_pol;     % Initialize policy
+export_policy;          % Export policy into the format used by the 
+                        % physical system
+                        
+disp '---------------------------------------------------'
+disp 'Time to rollout the policy into the physical system'
+disp 'When done run gpreps2'
+disp '---------------------------------------------------'
+k = 1; % First policy iteration comes now
