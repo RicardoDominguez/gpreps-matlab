@@ -7,10 +7,11 @@
 % Last modified: 2018-02
 %
 
-init_param;             % Initialize scenario
-init_arbitrary_pol;     % Initialize policy
-export_policy;          % Export policy into the format used by the 
-                        % physical system
+disp 'Initializing algorithm...'; init_param;          % Initialize scenario
+disp 'Initializing policy...'; init_arbitrary_pol;     % Initialize policy
+disp 'Exporting policy into files...'; export_policy;  % Export policy into the 
+                                                       % format used by the 
+                                                       % physical system
                         
 disp '---------------------------------------------------'
 disp 'Time to rollout the policy into the physical system'

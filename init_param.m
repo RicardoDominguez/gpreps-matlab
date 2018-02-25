@@ -6,15 +6,14 @@
 % Last modified: 2018-02
 %
 
-disp 'Initializing algorithm...'
-
 % Clear workspace and add relevant subfolders
 clear; addpath('pol', 'minim', 'cost', 'rollout');
 
 %% Indexes for GP training [x, v, E, U]
-dyni = [2, 5];      % Inputs
+dyni = [2, 4];      % Inputs
 dyno = [1, 2, 3];   % Outputs
-difi = [1, 2, 3];  % Trained by differences
+difi = [1, 2, 3];   % Trained by differences
+scal = [1, 1];      % Scale on inputs
 
 %% Parameters of the simulated rollout
 simroll.max_sim_time = 30;          % (in seconds)
@@ -49,3 +48,4 @@ dual_fcn = @dual_function;
 %% Number of iterations
 K = 10;             % Number of policy iterations
 M = 10000;          % Number of simulated rollouts
+X = []; Y = [];

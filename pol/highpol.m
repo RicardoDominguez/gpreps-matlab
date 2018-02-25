@@ -16,7 +16,7 @@
 % 
 % By Ricardo Dominguez Olmedo
 %
-% Last modified: 2017-10
+% Last modified: 2018-02
 %
 function w = highpol(hipol, N)
     % Sample from multivariate normal distribution

@@ -7,7 +7,5 @@
 % Last modified: 2018-02
 %
 
-disp 'Exporting policy into files...'
-
 % Export look upo table into a C file formats
 lookupTable2arrayFile(pol.nX, pol.deltaX, pol.W);

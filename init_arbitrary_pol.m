@@ -7,8 +7,6 @@
 % Last modified: 2018-02
 %
 
-disp 'Initializing policy...'
-
 %% Change mean and deviation as desired. Currently, high deviation arround
 % the mean to get sufficent information about the dynamics of the physical
 % system.
@@ -20,6 +18,6 @@ sample_dev = sample_mean / 3;
 
 %% Initialize weights
 % Weight of the policy, look-up table Y axis data points
-pol.W = normrnd(sample_mean, sample_dev, pol.nX);
+pol.W = normrnd(sample_mean, sample_dev, pol.nX, 1);
 % Initial high policy mean equal to low level policy mean
 hipol.muW = pol.W;

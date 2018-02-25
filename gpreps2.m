@@ -6,7 +6,7 @@
 %
 % Last modified: 2018-02
 %
-%
+
 fprintf('Policy iteration %d of %d.\n', k, K)
 
 % Load data from the rollout on the physical system
