@@ -4,7 +4,7 @@
 %
 % By Ricardo Dominguez Olmedo
 %
-% Last modified: 2017-10
+% Last modified: 2018-02
 %
 
 nout = size(dyno, 2); ns = length(simroll.initX); Ntraj = M;
@@ -17,33 +17,32 @@ x0 = simroll.initX; x = ones(Ntraj, 1) * x0; % Current state (T x nS)
 u = zeros(Ntraj, 1); % Control action, (T x 1)
 in = zeros(Ntraj, size(dyni, 2)); % GP input
 y = zeros(Ntraj, size(dyno, 2)); % Next state, GP output
+all_y = zeros(Ntraj, H); % Concatenation of all states outputed
 
 for t = 1:simroll.H  % Each step within horizon
     tic
     
-    % Trajectories finished
-    notdone = (x(:,1) < simroll.start_dist); % T x 1
-   
+    % Trajectories finished   
     % Sample from low level policy
-    u(notdone) = policyvec(pol, polWs(:, notdone), x(notdone,1)); % T x 1
+    u = policyvec(pol, polWs, x(:, 1)); % T x 1
     
     % Predict next step
-    in(notdone, 1) = x(notdone, dyni(1:end-1));
-    in(notdone, end) = u(notdone);
+    in(:, 1) = x(:, dyni(1:end-1));
+    in(:, end) = u;
     in = in .* scal; % Scale input
     for i = 1:nout
-        y(notdone, i) = predict(GPmodels{i}, in(notdone, :));
+        y(:, i) = predict(GPmodels{i}, in(:, :));
     end
 
     % Update variables by differences
-    y(notdone, difi) = y(notdone, difi) + x(notdone, difi);
-    x(notdone, :) = y(notdone, :);
+    y(:, difi) = y(:, difi) + x(:, difi);
+    all_y(:, t) = y(:, 1);
+    x(:, :) = y(:, :);
     fprintf("Step %d out of %d. Elapsed: %d\n", t, simroll.H, toc);
 end
 
 % Reward associated with the episode
-last_E = x(:, 3); x_end = x(:, 1);
-cost = cost_fcn_gp(x_end, simroll, last_E); % T x 1
+cost = cost_fcn(all_y); % T x 1
 
 Wdataset = polWs'; % T x W
 Rdataset = cost; % T x 1

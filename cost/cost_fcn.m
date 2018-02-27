@@ -6,10 +6,8 @@
 %
 % *Input arguments:*
 %
-%   endX              final rollout distance from initial point  (T x 1)
-%   simroll
-%       .end_dist     maximum distance achivable                 (1 x 1)
-%   total_E           total energy consumed during rollout       (T x 1)
+%   all_y             all velocities                             (T x H)
+%   target            target velocity                            (1 x 1)
 %
 % *Output arguments:*
 %
@@ -19,10 +17,7 @@
 %
 % Last modified: 2018-02
 %
-function C = cost_fcn(endX, simroll, total_E)
-    baseline = 6e+4; % Baseline (higher than any expected energy consumption)
-    k = 2000; % Scale factor
-    C = exp((baseline - total_E) / k); % T x 1
-    C(endX < simroll.end_dist * 0.95) = 1; % Low reward for rollout that did
-                                           % not complete the task
+function C = cost_fcn(all_y, target)
+    k = 1; % Scale factor
+    C = sum(exp(-abs(all_y - target) / k), 2); % T x 1
 end

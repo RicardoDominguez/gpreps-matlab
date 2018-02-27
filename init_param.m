@@ -9,17 +9,15 @@
 % Clear workspace and add relevant subfolders
 clear; addpath('pol', 'minim', 'cost', 'rollout');
 
-%% Indexes for GP training [x, v, E, U]
-dyni = [2, 4];      % Inputs
-dyno = [1, 2, 3];   % Outputs
-difi = [1, 2, 3];   % Trained by differences
-scal = [1, 1];      % Scale on inputs
+%% Indexes for GP training [v, U]
+dyni = [1, 2];      % Inputs
+dyno = [1];         % Outputs
+difi = [1];         % Trained by differences
+scal = [1];      % Scale on inputs
 
 %% Parameters of the simulated rollout
-simroll.max_sim_time = 30;          % (in seconds)
-simroll.dt = 1;                     % (in seconds)
-simroll.start_dist = 0;             % (in meters)
-simroll.end_dist = 20;              % (in meters)
+simroll.max_sim_time = 15;          % (in seconds)
+simroll.dt = 0.5;                     % (in seconds)
 simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
 
@@ -27,9 +25,8 @@ simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
 pol.minU = 0;           % Minimum control action
 pol.maxU = 4200;        % Maximum control action
 pol.sample = @policy; 
-pol.nX = 30;            % Numer of data points in the X-axis lookup table
-pol.lookupX = linspace(simroll.start_dist, ...
-    simroll.end_dist, pol.nX + 1);            
+pol.nX = 10;            % Numer of data points in the X-axis lookup table
+pol.lookupX = linspace(0, simroll.max_sim_time, pol.nX + 1);            
 pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
 pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up 
                                               % table X axis
