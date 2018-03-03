@@ -17,7 +17,7 @@ x0 = simroll.initX; x = ones(Ntraj, 1) * x0; % Current state (T x nS)
 u = zeros(Ntraj, 1); % Control action, (T x 1)
 in = zeros(Ntraj, size(dyni, 2)); % GP input
 y = zeros(Ntraj, size(dyno, 2)); % Next state, GP output
-all_y = zeros(Ntraj, H); % Concatenation of all states outputed
+all_y = zeros(Ntraj, simroll.H); % Concatenation of all states outputed
 
 for t = 1:simroll.H  % Each step within horizon
     tic
@@ -42,7 +42,7 @@ for t = 1:simroll.H  % Each step within horizon
 end
 
 % Reward associated with the episode
-cost = cost_fcn(all_y); % T x 1
+cost = cost_fcn(all_y, simroll.target); % T x 1
 
 Wdataset = polWs'; % T x W
 Rdataset = cost; % T x 1

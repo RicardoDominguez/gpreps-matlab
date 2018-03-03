@@ -23,6 +23,7 @@ disp 'Updating policy'; update_policy;
 store_pols{k, 1} = hipol.muW;
 k = k + 1; % For next policy iteration
 
+
 disp '---------------------------------------------------'
 disp 'Time to rollout the policy into the physical system'
 disp 'When done run gpreps2'

@@ -8,8 +8,8 @@
 %
 
 Xt = X(:, dyni); % Inputs of the model
-Yd = Y(:, difi) - X(:, difi); % Targets trained by differences
-Yt = Yd(:, dyno); % Outputs of the model
+Yd = Y(:, dyno); % Outputs of the model
+Yd(:, :) = Y(:, difi) - X(:, difi); % Targets trained by differences
 
 % Scale the data so that it has simar orders of magnitude and the GP is
 % trained properly
@@ -20,11 +20,14 @@ for i = 1:nout % One model trained for each output
     fprintf('Model %d out of %d. ', i, nout);
     
     % Extract train data
-    Yi = Yt(:, i);
+    Yi = Yd(:, i);
     
     % Train model
     worked = 0;
     siglow = 1e-2*std(Yi);
+    if siglow == 0
+        siglow = 0.01;
+    end
     while(~worked)
         try
             % Try to fit GP

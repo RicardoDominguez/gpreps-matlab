@@ -8,4 +8,4 @@
 %
 
 % Export look upo table into a C file formats
-lookupTable2arrayFile(pol.nX, pol.deltaX, pol.W);
+lookupTable2arrayFile(pol.nX, pol.deltaX*1000, hipol.muW);

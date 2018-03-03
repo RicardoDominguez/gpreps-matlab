@@ -16,16 +16,17 @@ difi = [1];         % Trained by differences
 scal = [1];      % Scale on inputs
 
 %% Parameters of the simulated rollout
-simroll.max_sim_time = 15;          % (in seconds)
+simroll.max_sim_time = 10;          % (in seconds)
 simroll.dt = 0.5;                     % (in seconds)
 simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
+simroll.target = 2000; % Target angular speed in RPM
 
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action
 pol.maxU = 4200;        % Maximum control action
 pol.sample = @policy; 
-pol.nX = 10;            % Numer of data points in the X-axis lookup table
+pol.nX = simroll.H;            % Numer of data points in the X-axis lookup table
 pol.lookupX = linspace(0, simroll.max_sim_time, pol.nX + 1);            
 pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
 pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up 
