@@ -3,6 +3,8 @@
 % the spacing between this points, and the corresponding Y points into a C
 % header file and array.
 %
+% lookupTable2arrayFile(nX, deltaX, Y)
+%
 % *Input arguments:*
 %   -nX: number of X axis data points in the look-up table
 %   -deltaX: spacing between the X axis data points
@@ -32,6 +34,7 @@ function lookupTable2arrayFile(nX, deltaX, Y)
     fprintf(headerID, '#endif\n');
 	fclose(headerID);
     disp 'lookupTable.h created'
+    
     % Create .c file
     cID = fopen('lookupTable.c', 'w');
     fprintf(cID, '#include "lookupTable.h"\n\n');

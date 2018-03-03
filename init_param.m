@@ -3,7 +3,7 @@
 %
 % By Ricardo Dominguez Olmedo
 %
-% Last modified: 2018-02
+% Last modified: 2018-03
 %
 
 % Clear workspace and add relevant subfolders
@@ -13,7 +13,8 @@ clear; addpath('pol', 'minim', 'cost', 'rollout');
 dyni = [1, 2];      % Inputs
 dyno = [1];         % Outputs
 difi = [1];         % Trained by differences
-scal = [1];      % Scale on inputs
+scal = [1];         % Scale on inputs
+icos = [1];         % Index for cost function
 
 %% Parameters of the simulated rollout
 simroll.max_sim_time = 10;          % (in seconds)
@@ -21,6 +22,9 @@ simroll.dt = 0.5;                     % (in seconds)
 simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
 simroll.target = 2000; % Target angular speed in RPM
+
+%% Parameters for interacting with real system
+load_data_fcn = @readDataSTMstudio;
 
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action
