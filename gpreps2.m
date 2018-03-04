@@ -4,7 +4,7 @@
 %   
 % By Ricardo Dominguez Olmedo
 %
-% Last modified: 2018-02
+% Last modified: 2018-03
 %
 
 fprintf('Policy iteration %d of %d.\n', k, K)
@@ -20,8 +20,13 @@ disp 'Predict rewards'; predict_reward;
 
 % Update high level policy
 disp 'Updating policy'; update_policy; 
-store_pols{k, 1} = hipol.muW;
+disp 'Exporting policy into files...'; export_policy;  % Export policy into the 
+                                                       % format used by the 
+                                                       % physical system
 k = k + 1; % For next policy iteration
+
+% Save some variables to archive folder
+end_ep_archive;
 
 
 disp '---------------------------------------------------'

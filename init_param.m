@@ -25,6 +25,10 @@ simroll.target = 2000; % Target angular speed in RPM
 
 %% Parameters for interacting with real system
 load_data_fcn = @readDataSTMstudio;
+policy_folder = 'Controller/Src/';
+log_folder = 'Controller/Log/';
+archive_folder = 'archive/';
+base_file_name = 'vel';
 
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action

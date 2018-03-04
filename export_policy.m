@@ -9,3 +9,5 @@
 
 % Export look upo table into a C file formats
 lookupTable2arrayFile(pol.nX, pol.deltaX*1000, hipol.muW);
+movefile('lookupTable.c', [policy_folder, 'lookupTable.c'])
+movefile('lookupTable.h', [policy_folder, 'lookupTable.h'])
