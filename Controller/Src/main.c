@@ -37,6 +37,7 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "motor_control.h"
+#include "lookupTable.h"
 
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -57,11 +58,15 @@ uint32_t globalHeartbeat_50us = 0, heartbeat_100us = 0, heartbeat_1ms = 0, heart
 int measuredSpeed = 0;
 int demandedSpeed = 0; //Keep track of motor measured/demanded speed
 int demandedPWM = 0; //Duty cycle proportional to the control 
-uint16_t accelPedalValue_scaled = 0;
+uint16_t accelPedalValue_scaled = 0; 
 int controlOutput = 0;
 int speedError = 0;
 int encoder_ticks = 0;
 int real_ticks = 0;
+float ms_since_start = 0;
+int tableIndx = 0;
+int ms10_gone = 0;
+int start_recording = 0;
 
 /* USER CODE END PV */
 
@@ -163,7 +168,17 @@ int main(void)
 	//Specifc for anti-windup (due to actuator saturation)
 	float actuatorSaturationPoint;
 	getActuatorSaturationPoint(&actuatorSaturationPoint, supplyVoltage, motorSpeedConstant);
-
+	
+	//------------------------------------------------------------------------------
+	// Look up table variables
+	//------------------------------------------------------------------------------
+	int tableSize;
+	returnLookUpTableSize(&tableSize);
+	
+	float tableDelta;
+	int tableOutput[tableSize];
+	returnLookUpTableData(&tableDelta, tableOutput);
+	
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -279,16 +294,26 @@ int main(void)
 			heartbeatDiff = ~heartbeatDiff + 1;
 		}
 		if (heartbeatDiff > 20) { //1ms stuff, get PID value
+			ms10_gone++;
 			
   		heartbeat_1ms = globalHeartbeat_50us;
 			
-			speedError = demandedSpeed - measuredSpeed;
+			//speedError = demandedSpeed - measuredSpeed;
 			//Apply PID - with anti-windup
-			getControlOutput(&controlOutput, demandedSpeed, measuredSpeed, actuatorSaturationPoint, 
-				&speedErrorSum, Kp, Ki, windupEnabled);
+			//getControlOutput(&controlOutput, demandedSpeed, measuredSpeed, actuatorSaturationPoint, 
+			//	&speedErrorSum, Kp, Ki, windupEnabled);
 			//Get the PWM duty cicle sing scalar control (volts per hz)
-			getDemandedPWM(&demandedPWM, controlOutput, motorSpeedConstant, motorBrakeConstant, supplyVoltage); 
+			//getDemandedPWM(&demandedPWM, controlOutput, motorSpeedConstant, motorBrakeConstant, supplyVoltage); 
 			
+			ms_since_start = ms10_gone * 1;
+			tableIndx = ms_since_start / tableDelta;
+			if((tableIndx >= 0) && (tableIndx <= (tableSize-1))){
+				start_recording = 1;
+				accelPedalValue_scaled = tableOutput[tableIndx];
+			} else {
+				accelPedalValue_scaled = 0;
+				start_recording = 0;
+			}				
 		}
 		
 		heartbeatDiff = globalHeartbeat_50us -  heartbeat_10ms;
@@ -300,17 +325,21 @@ int main(void)
       heartbeat_10ms = globalHeartbeat_50us; //10ms stuff, get pedal values
 			
 			//60 * encoder_ticks / (time_interval * pulses per revolution)
+			
 			real_ticks = encoder_ticks;
 			measuredSpeed = ((float)(100 * encoder_ticks));
 			encoder_ticks = 0;
 			
-			getScaledBrakeValue(&brakePedalVlaue_scaled, brakeMin_in, brakeRange); //Read brake pedal
-			getScaledAccelValue(&accelPedalValue_scaled, accelMin_in, accelRange); //Read accelearion pedal
+			//getScaledBrakeValue(&brakePedalVlaue_scaled, brakeMin_in, brakeRange); //Read brake pedal
+			//getScaledAccelValue(&accelPedalValue_scaled, accelMin_in, accelRange); //Read accelearion pedal
 			//accelPedalValue_scaled = 2100; //2100
-			getDemandedSpeed(&demandedSpeed, accelPedalValue_scaled, maxMotorSpeed); //Get the demanded speed
+			//getDemandedSpeed(&demandedSpeed, accelPedalValue_scaled, maxMotorSpeed); //Get the demanded speed
 																																							 //from accel pedal info
-  		getGearForward(&gearForward); //Sample gear forward/backward
+			//demandedSpeed = 1000;
+			
+  		//getGearForward(&gearForward); //Sample gear forward/backward
 			//demandedSpeed = 2000;
+			
 			
 			startADC_HALs();
 			LED_stateMachine(systemState, Halls, globalHeartbeat_50us, hallLED_state);

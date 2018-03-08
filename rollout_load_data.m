@@ -12,11 +12,10 @@ movefile([log_folder, 'log.txt'], 'log.txt');
 data_file_name = 'log.txt';
 
 % Extract x and y data
-[x, y] = load_data_fcn(data_file_name, simroll.H);
+[x, y] = load_data_fcn(data_file_name, simroll);
 
 % Evaluate cost of train data
 rollout_costs(k) = cost_fcn(y(:, icos)', simroll.target);
-
 
 % Append to previous data extracted from rollouts
 X = [X; x]; Y = [Y; y];

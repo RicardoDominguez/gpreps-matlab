@@ -27,6 +27,8 @@ simroll.target = 2000; % Target angular speed in RPM
 load_data_fcn = @readDataSTMstudio;
 policy_folder = 'Controller/Src/';
 log_folder = 'Controller/Log/';
+UV_folder = 'Controller\MDK-ARM\MainPWM_CTS.uvprojx';
+STMstudioLogExe = 'Controller\Rec\STMStudioRollout.exe';
 archive_folder = 'archive/';
 base_file_name = 'vel';
 
@@ -53,5 +55,5 @@ dual_fcn = @dual_function;
 
 %% Number of iterations
 K = 10;             % Number of policy iterations
-M = 10000;          % Number of simulated rollouts
+M = 20000;          % Number of simulated rollouts
 X = []; Y = [];
