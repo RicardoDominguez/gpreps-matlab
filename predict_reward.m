@@ -19,12 +19,15 @@ in = zeros(Ntraj, size(dyni, 2)); % GP input
 y = zeros(Ntraj, size(dyno, 2)); % Next state, GP output
 all_y = zeros(Ntraj, simroll.H); % Concatenation of all states outputed
 
+% The policy depends on the time, thus this vector is required
+eps_time = 0.01;
+
 for t = 1:simroll.H  % Each step within horizon
     tic
     
     % Trajectories finished   
     % Sample from low level policy
-    u = policyvec(pol, polWs, x(:, 1)); % T x 1
+    u = policyvec(pol, polWs, eps_time*ones(Ntraj, 1)); % T x 1
     
     % Predict next step
     in(:, 1) = x(:, dyni(1:end-1));
@@ -38,6 +41,11 @@ for t = 1:simroll.H  % Each step within horizon
     y(:, difi) = y(:, difi) + x(:, difi);
     all_y(:, t) = y(:, 1);
     x(:, :) = y(:, :);
+    
+    % Update simulation time
+    eps_time = eps_time + simroll.dt;
+    
+    % Print out
     fprintf("Step %d out of %d. Elapsed: %d\n", t, simroll.H, toc);
 end
 

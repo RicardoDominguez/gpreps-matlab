@@ -21,4 +21,6 @@ sample_dev = sample_mean / 3;
 pol.W = normrnd(sample_mean, sample_dev, pol.nX, 1);
 % Initial high policy mean equal to low level policy mean
 hipol.muW = pol.W;
+hipol.sigmaW = eye(pol.nX) .* (deviation^2); % High level policy cov matrix
+
 store_pols{1, 1} = hipol.muW;

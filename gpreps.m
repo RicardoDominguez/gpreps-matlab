@@ -8,6 +8,7 @@
 %
 
 disp 'Initializing algorithm...'; init_param;          % Initialize scenario
+
 disp 'Initializing policy...'; init_arbitrary_pol;     % Initialize policy
 disp 'Exporting policy into files...'; export_policy;  % Export policy into the 
                                                        % format used by the 

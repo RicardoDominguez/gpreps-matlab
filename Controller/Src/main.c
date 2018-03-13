@@ -38,6 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "motor_control.h"
 #include "lookupTable.h"
+#define tableSize 1
 
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -172,11 +173,13 @@ int main(void)
 	//------------------------------------------------------------------------------
 	// Look up table variables
 	//------------------------------------------------------------------------------
-	int tableSize;
-	returnLookUpTableSize(&tableSize);
+	//int tableSize;
+	//returnLookUpTableSize(&tableSize);
 	
 	float tableDelta;
 	int tableOutput[tableSize];
+	//int *tableOutput;
+	//tableOutput = malloc(sizeof(int) * tableSize);
 	returnLookUpTableData(&tableDelta, tableOutput);
 	
   /* USER CODE END 1 */
@@ -305,7 +308,7 @@ int main(void)
 			//Get the PWM duty cicle sing scalar control (volts per hz)
 			//getDemandedPWM(&demandedPWM, controlOutput, motorSpeedConstant, motorBrakeConstant, supplyVoltage); 
 			
-			ms_since_start = ms10_gone * 1;
+			ms_since_start = ms10_gone;
 			tableIndx = ms_since_start / tableDelta;
 			if((tableIndx >= 0) && (tableIndx <= (tableSize-1))){
 				start_recording = 1;

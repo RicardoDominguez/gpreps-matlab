@@ -30,22 +30,21 @@ log_folder = 'Controller/Log/';
 UV_folder = 'Controller\MDK-ARM\MainPWM_CTS.uvprojx';
 STMstudioLogExe = 'Controller\Rec\STMStudioRollout.exe';
 archive_folder = 'archive/';
-base_file_name = 'vel';
+base_file_name = 'p1';
 
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action
 pol.maxU = 4200;        % Maximum control action
 pol.sample = @policy; 
 pol.nX = simroll.H;            % Numer of data points in the X-axis lookup table
-pol.lookupX = linspace(0, simroll.max_sim_time, pol.nX + 1);            
-pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
+pol.lookupX = linspace(0, simroll.max_sim_time, pol.nX + 1);        
 pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up 
                                               % table X axis
+pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
 
 %% Higher level policy
 deviation = 200; % Allows to tune the high level policy covariance matrix. 
                  % Higher, more exploration
-hipol.sigmaW = eye(pol.nX) .* (deviation^2); % High level policy cov matrix
 hipol.sample = @highpol;
 
 %% Relative entropy bound
@@ -57,3 +56,4 @@ dual_fcn = @dual_function;
 K = 10;             % Number of policy iterations
 M = 20000;          % Number of simulated rollouts
 X = []; Y = [];
+InitRoll = 5;
