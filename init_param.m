@@ -48,7 +48,7 @@ deviation = 200; % Allows to tune the high level policy covariance matrix.
 hipol.sample = @highpol;
 
 %% Relative entropy bound
-eps = 1; % Relative entropy bound
+eps = 3; % Relative entropy bound
          % Lower results in more exploration
 dual_fcn = @dual_function;
 
