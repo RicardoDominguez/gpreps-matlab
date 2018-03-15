@@ -38,7 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "motor_control.h"
 #include "lookupTable.h"
-#define tableSize 1
+#define tableSize 20
 
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */

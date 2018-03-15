@@ -2,7 +2,7 @@ init_param;
 init_arbitrary_pol;
 og = hipol.muW;
 load('d4RolloutData.mat')
-eps = 3;
+eps = 4;
 kn = 10;
 policies = zeros(kn+1, length(hipol.muW));
 policies(1, :) = hipol.muW';

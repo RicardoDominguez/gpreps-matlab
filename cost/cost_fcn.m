@@ -19,7 +19,8 @@
 %
 function C = cost_fcn(all_y, target)
     k = 1000; % Scale factor
+    k2 = 1e8;
     C = sum(abs(all_y - target), 2);
     %C = sum(exp(-abs(all_y - target) / k), 2); % T x 1
-    C = exp(C / k);
+    C = exp(-C / k)*k2;
 end

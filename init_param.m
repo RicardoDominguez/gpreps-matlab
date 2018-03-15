@@ -7,7 +7,7 @@
 %
 
 % Clear workspace and add relevant subfolders
-clear; addpath('pol', 'minim', 'cost', 'rollout');
+clear; addpath('pol', 'minim', 'cost', 'rollout', 'achiving');
 
 %% Indexes for GP training [v, U]
 dyni = [1, 2];      % Inputs
@@ -54,6 +54,6 @@ dual_fcn = @dual_function;
 
 %% Number of iterations
 K = 10;             % Number of policy iterations
-M = 20000;          % Number of simulated rollouts
+M = 10000;          % Number of simulated rollouts
 X = []; Y = [];
 InitRoll = 5;
