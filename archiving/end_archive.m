@@ -1,4 +1,4 @@
-%% end_ep_archive.m
+%% end_archive.m
 % *Summary:* Saves various variables to the archive folder, so that the
 % training process can be resumed afterwards.
 %   

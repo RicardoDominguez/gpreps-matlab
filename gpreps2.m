@@ -9,9 +9,6 @@
 
 fprintf('Policy iteration %d of %d.\n', k, K)
 
-% Load data from the rollout on the physical system
-disp 'Load data from rollout'; rollout_load_data;
-
 % Train forward model
 disp 'Train models'; train_forward_model;
 
@@ -19,16 +16,10 @@ disp 'Train models'; train_forward_model;
 disp 'Predict rewards'; predict_reward;
 
 % Update high level policy
-disp 'Updating policy'; update_policy; 
-disp 'Exporting policy into files...'; export_policy;  % Export policy into the 
-                                                       % format used by the 
-                                                       % physical system
-k = k + 1; % For next policy iteration
+disp 'Updating policy'; update_policy;
 
-% Save some variables to archive folder
-end_ep_archive;
+% Next step
+k = k + 1;
 
-disp '---------------------------------------------------'
-disp 'Time to rollout the policy into the physical system'
-disp 'When done run gpreps2'
-disp '---------------------------------------------------'
+% System rollout
+disp 'Exporting policy into files...'; system_rollout;

@@ -1,4 +1,4 @@
-%% rollout_load_data.m
+%% loadRolloutData.m
 % *Summary:* Load data from a text file corresponding to the data logged
 % during the rollout of the policy in the physical system.
 %   

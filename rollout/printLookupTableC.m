@@ -1,4 +1,4 @@
-%% lookupTable2arrayFile.m
+%% printLookupTableC.m
 % *Summary:* Exports look-up table parametrized by the number of X points,
 % the spacing between this points, and the corresponding Y points into a C
 % header file and array.

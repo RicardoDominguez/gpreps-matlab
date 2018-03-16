@@ -7,7 +7,7 @@
 %
 
 % Clear workspace and add relevant subfolders
-clear; addpath('pol', 'minim', 'cost', 'rollout', 'achiving');
+clear; addpath('pol', 'minim', 'cost', 'rollout', 'archiving');
 
 %% Indexes for GP training [v, U]
 dyni = [1, 2];      % Inputs
@@ -44,9 +44,17 @@ pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up
 pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
 
 %% Higher level policy
+hipol.sample = @highpol;
 deviation = 200; % Allows to tune the high level policy covariance matrix. 
                  % Higher, more exploration
-hipol.sample = @highpol;
+% Check if distribution is satisfacotry using
+% distribution using histogram(normrnd(muW_mean, muW_dev, 1000));
+muW_mean = 3000;
+muW_dev  = muW_mean / 10;
+% Initial high policy mean equal to low level policy mean
+hipol.muW = normrnd(muW_mean, muW_dev, pol.nX, 1);
+hipol.sigmaW = eye(pol.nX) .* (deviation^2); % High level policy cov matrix
+store_pols{1, 1} = hipol.muW; % Log initial policy
 
 %% Relative entropy bound
 eps = 3; % Relative entropy bound
