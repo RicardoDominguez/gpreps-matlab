@@ -19,7 +19,7 @@
 %
 % By Ricardo Dominguez Olmedo
 %
-% Last modified: 2018-02
+% Last modified: 2018-03
 %
 function lookupTable2arrayFile(nX, deltaX, Y)
     % Make Y look-up table integers
@@ -28,8 +28,8 @@ function lookupTable2arrayFile(nX, deltaX, Y)
     % Create header file
     headerID = fopen('lookupTable.h', 'w');
     fprintf(headerID, '#ifndef LOOKUPTABLE_\n');
-    fprintf(headerID, '#define LOOKUPTABLE_\n');
-    fprintf(headerID, 'void returnLookUpTableSize(int *nx);\n');
+    fprintf(headerID, '#define LOOKUPTABLE_\n\n');
+    fprintf(headerID, '#define tableSize %d\n', nX);
     fprintf(headerID, 'void returnLookUpTableData(float *dx, int yarray[]);\n');
     fprintf(headerID, '#endif\n');
 	fclose(headerID);
@@ -38,13 +38,12 @@ function lookupTable2arrayFile(nX, deltaX, Y)
     % Create .c file
     cID = fopen('lookupTable.c', 'w');
     fprintf(cID, '#include "lookupTable.h"\n\n');
-    fprintf(cID, 'void returnLookUpTableSize(int *nx){(*nx) = %d;}\n', nX);
     fprintf(cID, 'void returnLookUpTableData(float *dx, int yarray[]){\n');
     fprintf(cID, '\t*dx = %f;\n', deltaX);
     for i = 1:nX
     	fprintf(cID, '\t*(yarray + %d) = %d;\n', i-1, Y(i));
     end
-    fprintf(cID, '}');
+    fprintf(cID, '}\n');
     fclose(cID);
     disp 'lookupTable.c created'
 end

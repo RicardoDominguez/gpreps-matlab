@@ -38,7 +38,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "motor_control.h"
 #include "lookupTable.h"
-#define tableSize 20
 
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -173,13 +172,9 @@ int main(void)
 	//------------------------------------------------------------------------------
 	// Look up table variables
 	//------------------------------------------------------------------------------
-	//int tableSize;
-	//returnLookUpTableSize(&tableSize);
-	
-	float tableDelta;
-	int tableOutput[tableSize];
-	//int *tableOutput;
-	//tableOutput = malloc(sizeof(int) * tableSize);
+	int tableOutput[tableSize]; //Policy stored here
+                                //tableSize #define in lookupTable.h
+    float tableDelta; //Table delta for independent variable ("x-axis")
 	returnLookUpTableData(&tableDelta, tableOutput);
 	
   /* USER CODE END 1 */
