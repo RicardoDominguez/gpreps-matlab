@@ -21,7 +21,8 @@ simroll.max_sim_time = 10;          % (in seconds)
 simroll.dt = 0.5;                     % (in seconds)
 simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
-simroll.target = 2000; % Target angular speed in RPM
+simroll.target = 2000;
+%simroll.target = [2500, 2500, 2400, 2400, 2300, 2300, 2200, 2200, 2100, 2100, 2000, 2000, 2100, 2100, 2200, 2200, 2300, 2300, 2400, 2400]; % Target angular speed in RPM
 
 %% Parameters for interacting with real system
 load_data_fcn = @readDataSTMstudio;
@@ -30,7 +31,7 @@ log_folder = 'Controller/Log/';
 UV_folder = 'Controller\MDK-ARM\MainPWM_CTS.uvprojx';
 STMstudioLogExe = 'Controller\Rec\STMStudioRollout.exe';
 archive_folder = 'archive/';
-base_file_name = 'p1';
+base_file_name = 'd1';
 
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action

@@ -13,7 +13,7 @@
 %sample_mean = (pol.maxU + pol.minU) / 2;
 %sample_dev = sample_mean / 3;
 sample_mean = 3000;
-sample_dev = sample_mean / 20;
+sample_dev = sample_mean / 10;
 % Visiaully check if this values are satisfactory using:
 %   >> pns = normrnd(sample_mean, sample_dev, 1000);
 %   >> histogram(pns)
