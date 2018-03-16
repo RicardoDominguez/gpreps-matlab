@@ -1,0 +1,66 @@
+# PROJECT SPECIFIC
+# ----------------------------------------------------
+archive/
+Controller/Drivers/
+Controller/Inc/
+Controller/Log/
+Controller/MDK-ARM/
+Controller/Rec/
+Controller/g1.tsc
+Controller/MainPWM_CTS.ioc
+Controller/.mxproject
+Controller/Src/lookupTable.c
+Controller/Src/lookupTable.h
+Controller/Src/stm32f4xx_hal_msp.c
+Controller/Src/stm32f4xx_it.c
+
+# OTHER
+# ------------------------------------------------------
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
