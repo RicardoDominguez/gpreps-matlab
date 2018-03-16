@@ -14,7 +14,6 @@ The general data flow can be represented as:
 6. Go to step 2 (K times)
 
 To improve:
- * When exporting policy, add #define to header file + add end line 
  * Change gpreps/gpreps2 structure so that rollout is always loaded after rollout
  * Check why stm studio pop up window pops in the background
  * Add velocity feedback

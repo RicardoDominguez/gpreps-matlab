@@ -13,6 +13,7 @@ Controller/Src/lookupTable.c
 Controller/Src/lookupTable.h
 Controller/Src/stm32f4xx_hal_msp.c
 Controller/Src/stm32f4xx_it.c
+log.txt
 
 # OTHER
 # ------------------------------------------------------

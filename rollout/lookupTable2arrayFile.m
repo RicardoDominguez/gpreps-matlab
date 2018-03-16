@@ -29,9 +29,9 @@ function lookupTable2arrayFile(nX, deltaX, Y)
     headerID = fopen('lookupTable.h', 'w');
     fprintf(headerID, '#ifndef LOOKUPTABLE_\n');
     fprintf(headerID, '#define LOOKUPTABLE_\n\n');
-    fprintf(headerID, '#define tableSize %d\n', nX);
+    fprintf(headerID, '#define tableSize %d\n\n', nX);
     fprintf(headerID, 'void returnLookUpTableData(float *dx, int yarray[]);\n');
-    fprintf(headerID, '#endif\n');
+    fprintf(headerID, '\n#endif\n');
 	fclose(headerID);
     disp 'lookupTable.h created'
     

@@ -55,4 +55,6 @@ void getActuatorSaturationPoint(float* actuatorSaturationPoint, int supplyVoltag
 
 int getEncoderChanges(uint8_t lastHallPosition, uint8_t hallPosition);
 
+// AUTOMATIC CONTROL FUNCTIONS
+int sampleLookupTable(int* Y, int X, float dX, int nX, int tableArr[]);
 #endif

@@ -599,3 +599,29 @@ void getActuatorSaturationPoint(float* actuatorSaturationPoint, int supplyVoltag
 int getEncoderChanges(uint8_t lastHallPosition, uint8_t hallPosition){
 	return ENCODER_CHANGES[lastHallPosition][hallPosition];
 }	
+
+//-------------------------------------------------------------------------------------------------
+// AUTOMATIC CONTROL FUNCTIONS
+//-------------------------------------------------------------------------------------------------
+
+/*
+	Description: Implements a one-dimensional lookup table to find output y for input x. Returns 1 if
+	the input x fall within the range of the lookup table, 0 otherwise.
+	
+	Input parameters: int* Y - pointer used to return output Y
+										int X  - input x
+										float dX - distance between the x data values of the lookup table
+										int nX - size of the table array
+										int tableArr[] - array containing the lookup table
+			
+*/
+int sampleLookupTable(int* Y, int X, float dX, int nX, int tableArr[]){
+	int tableIndx = X / dX;
+	if((tableIndx >= 0) && (tableIndx <= (nX-1))){ //Within table bounds
+		(*Y) = tableArr[tableIndx]; //Read array
+		return 1;
+	} else {
+		(*Y) = 0; // Safety feature (stop motor)
+		return 0;
+	}				
+}

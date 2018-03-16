@@ -55,18 +55,11 @@ TIM_HandleTypeDef htim8;
 
 //Global heartbeats
 uint32_t globalHeartbeat_50us = 0, heartbeat_100us = 0, heartbeat_1ms = 0, heartbeat_10ms = 0;
+
+//Variables recorded by STMstudio
 int measuredSpeed = 0;
-int demandedSpeed = 0; //Keep track of motor measured/demanded speed
-int demandedPWM = 0; //Duty cycle proportional to the control 
-uint16_t accelPedalValue_scaled = 0; 
-int controlOutput = 0;
-int speedError = 0;
-int encoder_ticks = 0;
-int real_ticks = 0;
-float ms_since_start = 0;
-int tableIndx = 0;
-int ms10_gone = 0;
-int start_recording = 0;
+int PWM_duty_cycle = 0; 
+int start_recording = 0; //Rising edge to start recording
 
 /* USER CODE END PV */
 
@@ -109,17 +102,19 @@ int main(void)
 	
 	//Motor characteristics
 	float motorSpeedConstant = 0.004; // in volts per rpm
-	float motorBrakeConstant = 0.001; // in volts per rpm
+	//float motorBrakeConstant = 0.001; // in volts per rpm
 	//float motorBrakeConstant = motorSpeedConstant; //Uncomment to see if brake constant impacts results
 	uint8_t supplyVoltage = 12; //in volts
 	uint16_t maxMotorSpeed = 3000; //in rpmm
 	
 	//PI variables
 	bool pidEnabled = false;
-	float Kp = 1.125;
-	float Ki = 0.001;
-	bool windupEnabled = true;
+	//float Kp = 1.125;
+	//float Ki = 0.001;
+	//bool windupEnabled = true;
 	
+	//Automatic control (using a lookup table)
+	bool automaticControl = true;
 	
 	//-------------------------------------------------------------------------------------------------
 	// VARIABLES NOT TO BE CHANGED
@@ -130,7 +125,7 @@ int main(void)
 	
 	//Variables to store the scaled acceleration and braking pedal values
 	uint16_t brakePedalVlaue_scaled = 0;
-	//uint16_t accelPedalValue_scaled = 0;
+	uint16_t accelPedalValue_scaled = 0;
 	
 	
 	uint8_t systemState = 0; //Senses dead man switch / malfunctions
@@ -153,28 +148,32 @@ int main(void)
 	//Pedal ranges
   uint16_t brakeRange = (brakeMax_in - brakeMin_in);
   uint16_t accelRange = (accelMax_in - accelMin_in);
+	
+	//Measuring time since specific events
+	int ms10_gone = 0; //Number of 10ms elapsed
+
+	//Measuring speed usign hall effect sensors
+	int encoder_ticks = 0; //Number of hall effect changes sensed
 
 	//PID
-	uint32_t hallEffectTick = globalHeartbeat_50us; //Time of last hall position change (in us)
-																									// used to compute motor velocity
-
 	uint8_t lastHallPosition; //Last position of the hall sensors - used to compute motor velocity
 	
-	//int measuredSpeed = 0, demandedSpeed = 0; //Keep track of motor measured/demanded speed
-	float speedErrorSum = 0.0; //Integral of the speed error
+	int demandedSpeed = 0;
+	//float speedErrorSum = 0.0; //Integral of the speed error
 	//int controlOutput; //PID output
-	//int demandedPWM = 0; //Duty cycle proportional to the control output
+	int demandedPWM = 0; //Duty cycle proportional to the control output
 	
 	//Specifc for anti-windup (due to actuator saturation)
 	float actuatorSaturationPoint;
 	getActuatorSaturationPoint(&actuatorSaturationPoint, supplyVoltage, motorSpeedConstant);
 	
 	//------------------------------------------------------------------------------
-	// Look up table variables
+	// Automatic control and Look up table variables
 	//------------------------------------------------------------------------------
+	int automaticControlAction = 0; //Control action extracted from lookup table
 	int tableOutput[tableSize]; //Policy stored here
                                 //tableSize #define in lookupTable.h
-    float tableDelta; //Table delta for independent variable ("x-axis")
+  float tableDelta; //Table delta for independent variable ("x-axis")
 	returnLookUpTableData(&tableDelta, tableOutput);
 	
   /* USER CODE END 1 */
@@ -212,7 +211,8 @@ int main(void)
 	startTimerPWM();
 
 	startADC_HALs();
-  /* USER CODE END 2 */
+	
+	/* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -233,16 +233,10 @@ int main(void)
 			readHallSensors(Halls);
 			getHallPosition(Halls, &hallPosition);
 			
-			//encoder_ticks += getEncoderChanges(lastHallPosition, hallPosition);
-			//lastHallPosition = hallPosition;
-			if (hallPosition != lastHallPosition) { //Compute motor speed using hall sensors
-				//computeHallSpeed(&measuredSpeed, globalHeartbeat_50us, hallPosition, &hallEffectTick, &lastHallPosition);
-				
+			if (hallPosition != lastHallPosition) { //Compute motor speed using hall sensors				
 				encoder_ticks++;
-				//hallEffectTick = globalHeartbeat_50us;
 				lastHallPosition = hallPosition;
 			}
-			
 			
 			if (!deadManSwitch) //Check for dead man switch
 			{ 
@@ -266,19 +260,14 @@ int main(void)
 					} else {
 						getPhasesForward(Phases, hallPosition);
 					}
-					
-					if(pidEnabled){ // PID
-						if (demandedPWM >=0) { //Accelerate
-							setDutyCiclePWM(Phases, demandedPWM);
-						} else { //Decelerate
-							setBrakingDutyCiclePWM(abs(demandedPWM));
-						}
-					} else { //No PID
-						setDutyCiclePWM(Phases, accelPedalValue_scaled); //Duty Cicle acording to pedal value
+				
+					if (PWM_duty_cycle >= 0) { //Accelerate
+						setDutyCiclePWM(Phases, PWM_duty_cycle);
+					} else { //Decelerate
+						setBrakingDutyCiclePWM(abs(PWM_duty_cycle));
 					}
-					
 					startTimerPWM();
-				} 
+				}
 				else //Hall sensors malfunction
 				{
 					systemState = 1;
@@ -296,22 +285,10 @@ int main(void)
 			
   		heartbeat_1ms = globalHeartbeat_50us;
 			
-			//speedError = demandedSpeed - measuredSpeed;
-			//Apply PID - with anti-windup
-			//getControlOutput(&controlOutput, demandedSpeed, measuredSpeed, actuatorSaturationPoint, 
-			//	&speedErrorSum, Kp, Ki, windupEnabled);
-			//Get the PWM duty cicle sing scalar control (volts per hz)
-			//getDemandedPWM(&demandedPWM, controlOutput, motorSpeedConstant, motorBrakeConstant, supplyVoltage); 
-			
-			ms_since_start = ms10_gone;
-			tableIndx = ms_since_start / tableDelta;
-			if((tableIndx >= 0) && (tableIndx <= (tableSize-1))){
-				start_recording = 1;
-				accelPedalValue_scaled = tableOutput[tableIndx];
-			} else {
-				accelPedalValue_scaled = 0;
-				start_recording = 0;
-			}				
+			//Calculate control action, start recording using STMstudio
+			sampleLookupTable(&automaticControlAction, ms10_gone, tableDelta, tableSize, tableOutput);
+			if(automaticControl){PWM_duty_cycle = automaticControlAction;}
+			start_recording = 1;
 		}
 		
 		heartbeatDiff = globalHeartbeat_50us -  heartbeat_10ms;
@@ -322,25 +299,27 @@ int main(void)
   	if (heartbeatDiff > 2000) {
       heartbeat_10ms = globalHeartbeat_50us; //10ms stuff, get pedal values
 			
-			//60 * encoder_ticks / (time_interval * pulses per revolution)
-			
-			real_ticks = encoder_ticks;
+			//Calculate speed, 60 * encoder_ticks / (time_interval * pulses per revolution)
 			measuredSpeed = ((float)(100 * encoder_ticks));
 			encoder_ticks = 0;
 			
-			//getScaledBrakeValue(&brakePedalVlaue_scaled, brakeMin_in, brakeRange); //Read brake pedal
-			//getScaledAccelValue(&accelPedalValue_scaled, accelMin_in, accelRange); //Read accelearion pedal
-			//accelPedalValue_scaled = 2100; //2100
-			//getDemandedSpeed(&demandedSpeed, accelPedalValue_scaled, maxMotorSpeed); //Get the demanded speed
+			//Pedal values and PID output
+			getScaledBrakeValue(&brakePedalVlaue_scaled, brakeMin_in, brakeRange); //Read brake pedal
+			getScaledAccelValue(&accelPedalValue_scaled, accelMin_in, accelRange); //Read accelearion pedal
+			getDemandedSpeed(&demandedSpeed, accelPedalValue_scaled, maxMotorSpeed); //Get the demanded speed
 																																							 //from accel pedal info
-			//demandedSpeed = 1000;
 			
-  		//getGearForward(&gearForward); //Sample gear forward/backward
-			//demandedSpeed = 2000;
+			//Control action going into the motor
+			if(!automaticControl){
+				if(pidEnabled){ PWM_duty_cycle = demandedPWM;}
+				else{ PWM_duty_cycle = accelPedalValue_scaled;}
+			}
 			
-			
+  		getGearForward(&gearForward); //Sample gear forward/backward
+
 			startADC_HALs();
-			LED_stateMachine(systemState, Halls, globalHeartbeat_50us, hallLED_state);
+			LED_stateMachine(systemState, Halls, globalHeartbeat_50us, hallLED_state); //Display hall effects
+																																								 //in STM LED's
   	}
 
   /* USER CODE END WHILE */
