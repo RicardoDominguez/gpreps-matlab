@@ -13,5 +13,9 @@ The general data flow can be represented as:
    rollouts.
 6. Go to step 2 (K times)
 
-To improve:
- * Add velocity feedback
+Velocity feedback neccesary changes:
+ * Change init_params
+ * Change forward models - inputs to system working properly or not
+ * Predict reward - how to sample from policy and all that
+ * Change "main.c" between open loop and velocity feedback"
+   and also policy changes only every sample.

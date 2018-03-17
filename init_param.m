@@ -42,6 +42,9 @@ pol.lookupX = linspace(0, simroll.max_sim_time, pol.nX + 1);
 pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up 
                                               % table X axis
 pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
+pol.controllerDeltaX = 500; % Value of deltaX exported to controller 
+    %(different than pol.deltaX if diffent units are needed, 
+    % for instance s vs ms)
 
 %% Higher level policy
 hipol.sample = @highpol;

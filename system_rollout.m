@@ -10,7 +10,7 @@
 %
 
 % Export look upo table into a C file formats, move to controller folder
-printLookupTableC(pol.nX, pol.deltaX*1000, hipol.muW);
+printLookupTableC(pol.nX, pol.controllerDeltaX, hipol.muW);
 movefile('lookupTable.c', [policy_folder, 'lookupTable.c'])
 movefile('lookupTable.h', [policy_folder, 'lookupTable.h'])
 
