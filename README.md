@@ -12,6 +12,3 @@ The general data flow can be represented as:
 5. Update high level policy according to the result of the simulated
    rollouts.
 6. Go to step 2 (K times)
-
-Velocity feedback neccesary changes:
- * Change init_params
