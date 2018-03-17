@@ -14,5 +14,4 @@ The general data flow can be represented as:
 6. Go to step 2 (K times)
 
 To improve:
- * Check why stm studio pop up window pops in the background
  * Add velocity feedback
