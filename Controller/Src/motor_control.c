@@ -616,6 +616,10 @@ int getEncoderChanges(uint8_t lastHallPosition, uint8_t hallPosition){
 			
 */
 int sampleLookupTable(int* Y, int X, float dX, int nX, int tableArr[]){
+	if(X < 0){ //Lookup table only has positive values on the X axis
+		(*Y) = 0; // Safety feature (stop motor)
+		return 0;
+	}
 	int tableIndx = X / dX;
 	if((tableIndx >= 0) && (tableIndx <= (nX-1))){ //Within table bounds
 		(*Y) = tableArr[tableIndx]; //Read array
