@@ -7,6 +7,7 @@
 %
 % *Input arguments:*
 %   -sampleT: lookup table sample time
+%   -rollTime: duration of rollout
 %   -nX: number of X axis data points in the look-up table
 %   -deltaX: spacing between the X axis data points
 %   -Y: Y axis data points
@@ -22,7 +23,7 @@
 %
 % Last modified: 2018-03
 %
-function printLookupTableC(sampleT, nX, deltaX, Y)
+function printLookupTableC(sampleT, rollT, nX, deltaX, Y)
     % Make Y look-up table integers
     Y = round(Y);
     
@@ -32,6 +33,7 @@ function printLookupTableC(sampleT, nX, deltaX, Y)
     fprintf(headerID, '#define LOOKUPTABLE_\n\n');
     fprintf(headerID, '#define tableSize %d\n\n', nX);
     fprintf(headerID, 'void returnPolSampleT(float *sampleT);\n');
+    fprintf(headerID, 'void returnRollT(float *rollT);\n');
     fprintf(headerID, 'void returnLookUpTableData(float *dx, int yarray[]);\n');
     fprintf(headerID, '\n#endif\n');
 	fclose(headerID);
@@ -42,6 +44,8 @@ function printLookupTableC(sampleT, nX, deltaX, Y)
     fprintf(cID, '#include "lookupTable.h"\n\n');
     fprintf(headerID, 'void returnPolSampleT(float *sampleT){\n');
     fprintf(headerID, '\t(*sampleT) = %f;\n}\n\n', sampleT);
+    fprintf(headerID, 'void returnRollT(float *rollT){\n');
+    fprintf(headerID, '\t(*rollT) = %f;\n}\n\n', rollT);
     fprintf(cID, 'void returnLookUpTableData(float *dx, int yarray[]){\n');
     fprintf(cID, '\t*dx = %f;\n', deltaX);
     for i = 1:nX

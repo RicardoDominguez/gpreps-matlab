@@ -36,6 +36,7 @@ STMstudioLogExe = 'Controller\Rec\STMStudioRollout.exe';
 archive_folder = 'archive/';
 base_file_name = 'd1';
 polSampleT = simroll.dt * 1000; % In ms
+controllerMaxRollTime = simroll.max_sim_time * 1000; % Duration of rollout
 
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action

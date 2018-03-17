@@ -180,8 +180,11 @@ int main(void)
 	returnPolSampleT(&polSampleTime); //Time between policy samples
 	int pastSampleT = -1; //Last sample was sample numer pastSampleT
 	int currSampleT = 0; //This sample is sample number currSampleT
+	float rolloutDuration;
+	returnRollT(&rolloutDuration);
 	//Policy input
 	bool policyInputSpeed = 1;
+	
 	
   /* USER CODE END 1 */
 
@@ -293,14 +296,18 @@ int main(void)
 						
 			//Calculate control action
 			if(automaticControl){
-				currSampleT = elapsed_1ms / polSampleTime;
-				if(currSampleT != pastSampleT){ //polSampleTime has elapsed since past sample
-					if(policyInputSpeed){ //Input to lookup table is speed
-						sampleLookupTable(&automaticControlAction, measuredSpeed, tableDelta, tableSize, tableOutput);
-					} else { //Input to lookup table is time elapsed
-						sampleLookupTable(&automaticControlAction, elapsed_1ms, tableDelta, tableSize, tableOutput);
+				if(elapsed_1ms <= rolloutDuration){ //Rollout has not finished
+					currSampleT = elapsed_1ms / polSampleTime;
+					if(currSampleT != pastSampleT){ //polSampleTime has elapsed since past sample
+						if(policyInputSpeed){ //Input to lookup table is speed
+							sampleLookupTable(&automaticControlAction, measuredSpeed, tableDelta, tableSize, tableOutput);
+						} else { //Input to lookup table is time elapsed
+							sampleLookupTable(&automaticControlAction, elapsed_1ms, tableDelta, tableSize, tableOutput);
+						}
+						PWM_duty_cycle = automaticControlAction;
 					}
-					PWM_duty_cycle = automaticControlAction;
+				} else {
+					PWM_duty_cycle = 0;
 				}
 			}
 			start_recording = 1; //Start recording using STMstudio
