@@ -9,20 +9,20 @@
 % Initialize scenario
 disp 'Initializing algorithm...'; init_param;
 
-for k = 1:10 % Policy iterations
+for k = 1:K % Policy iterations
     fprintf('Policy iteration %d of %d.\n', k, K)
     
     % System rollout
     disp 'System rollout...'; system_rollout;
                                                
     % Train forward model
-    disp 'Train models'; train_forward_model;
+    disp 'Train models...'; train_forward_model;
     
     % Predict M simulated rollouts
-    disp 'Predict rewards'; predict_reward;
+    disp 'Predict rewards...'; predict_reward;
 
     % Update high level policy
-    disp 'Updating policy'; update_policy;                                                           
+    disp 'Updating policy...'; update_policy;                                                           
 end
 
 % Evaluation of the final policy

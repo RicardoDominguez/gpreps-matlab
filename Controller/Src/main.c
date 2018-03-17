@@ -150,7 +150,7 @@ int main(void)
   uint16_t accelRange = (accelMax_in - accelMin_in);
 	
 	//Measuring time since specific events
-	int ms10_gone = 0; //Number of 10ms elapsed
+	int elapsed_1ms = 0; //Number of 10ms elapsed
 
 	//Measuring speed usign hall effect sensors
 	int encoder_ticks = 0; //Number of hall effect changes sensed
@@ -175,6 +175,11 @@ int main(void)
                                 //tableSize #define in lookupTable.h
   float tableDelta; //Table delta for independent variable ("x-axis")
 	returnLookUpTableData(&tableDelta, tableOutput);
+	//Policy sample variables
+	float polSampleTime;
+	returnPolSampleT(&polSampleTime); //Time between policy samples
+	int pastSampleT = -1; //Last sample was sample numer pastSampleT
+	int currSampleT = 0; //This sample is sample number currSampleT
 	
   /* USER CODE END 1 */
 
@@ -281,14 +286,19 @@ int main(void)
 			heartbeatDiff = ~heartbeatDiff + 1;
 		}
 		if (heartbeatDiff > 20) { //1ms stuff, get PID value
-			ms10_gone++;
+			heartbeat_1ms = globalHeartbeat_50us;
+			elapsed_1ms++;
+						
+			//Calculate control action
+			if(automaticControl){
+				currSampleT = elapsed_1ms / polSampleTime;
+				if(currSampleT != pastSampleT){ //polSampleTime has elapsed since past sample
+					sampleLookupTable(&automaticControlAction, elapsed_1ms, tableDelta, tableSize, tableOutput);
+					PWM_duty_cycle = automaticControlAction;
+				}
+			}
+			start_recording = 1; //Start recording using STMstudio
 			
-  		heartbeat_1ms = globalHeartbeat_50us;
-			
-			//Calculate control action, start recording using STMstudio
-			sampleLookupTable(&automaticControlAction, ms10_gone, tableDelta, tableSize, tableOutput);
-			if(automaticControl){PWM_duty_cycle = automaticControlAction;}
-			start_recording = 1;
 		}
 		
 		heartbeatDiff = globalHeartbeat_50us -  heartbeat_10ms;

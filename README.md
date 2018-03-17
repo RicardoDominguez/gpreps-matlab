@@ -16,4 +16,3 @@ The general data flow can be represented as:
 Velocity feedback neccesary changes:
  * Change init_params
  * Change "main.c" between open loop and velocity feedback"
-   and also policy changes only every sample.

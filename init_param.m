@@ -35,6 +35,7 @@ UV_folder = 'Controller\MDK-ARM\MainPWM_CTS.uvprojx';
 STMstudioLogExe = 'Controller\Rec\STMStudioRollout.exe';
 archive_folder = 'archive/';
 base_file_name = 'd1';
+polSampleT = simroll.dt * 1000; % In ms
 
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action
@@ -45,7 +46,7 @@ pol.lookupX = linspace(0, simroll.max_sim_time, pol.nX + 1);
 pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up 
                                               % table X axis
 pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
-pol.controllerDeltaX = 500; % Value of deltaX exported to controller 
+pol.controllerDeltaX = pol.deltaX * 1000; % Value of deltaX exported to controller 
     %(different than pol.deltaX if diffent units are needed, 
     % for instance s vs ms)
 
@@ -68,7 +69,7 @@ eps = 3; % Relative entropy bound
 dual_fcn = @dual_function;
 
 %% Number of iterations
-K = 10;             % Number of policy iterations
+K = 3;              % Number of policy iterations
 M = 10000;          % Number of simulated rollouts
 X = []; Y = [];
 InitRoll = 5;
