@@ -15,7 +15,7 @@ dyno = [1];         % Outputs
 difi = [1];         % Trained by differences
 scal = [1];         % Scale on inputs
 icos = [1];         % Index for cost function
-ipol = [ ];         % Index for policy
+ipol = [1];         % Index for policy
 
 %% Parameters of the simulated rollout
 simroll.max_sim_time = 10;          % (in seconds)
@@ -24,7 +24,7 @@ simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
 simroll.target = 2000;
 %simroll.target = [2500, 2500, 2400, 2400, 2300, 2300, 2200, 2200, 2100, 2100, 2000, 2000, 2100, 2100, 2200, 2200, 2300, 2300, 2400, 2400]; % Target angular speed in RPM
-simroll.timeInPol = 1; % 1 if the first input for the rollout policy is the
+simroll.timeInPol = 0; % 1 if the first input for the rollout policy is the
                        % simulation time
 
 %% Parameters for interacting with real system
@@ -41,12 +41,11 @@ polSampleT = simroll.dt * 1000; % In ms
 pol.minU = 0;           % Minimum control action
 pol.maxU = 4200;        % Maximum control action
 pol.sample = @policy; 
-pol.nX = simroll.H;            % Numer of data points in the X-axis lookup table
-pol.lookupX = linspace(0, simroll.max_sim_time, pol.nX + 1);        
+pol.lookupX = 0:100:4000;
+pol.nX = size(pol.lookupX, 2); % Numer of data points in the X-axis lookup table
 pol.deltaX = pol.lookupX(2) - pol.lookupX(1); % Even spacing in look-up 
                                               % table X axis
-pol.lookupX = pol.lookupX(2:end); % Look-up table X axis data points
-pol.controllerDeltaX = pol.deltaX * 1000; % Value of deltaX exported to controller 
+pol.controllerDeltaX = pol.deltaX; % Value of deltaX exported to controller 
     %(different than pol.deltaX if diffent units are needed, 
     % for instance s vs ms)
 
