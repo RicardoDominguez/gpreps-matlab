@@ -15,6 +15,7 @@ dyno = [1];         % Outputs
 difi = [1];         % Trained by differences
 scal = [1];         % Scale on inputs
 icos = [1];         % Index for cost function
+ipol = [ ];         % Index for policy
 
 %% Parameters of the simulated rollout
 simroll.max_sim_time = 10;          % (in seconds)
@@ -23,6 +24,8 @@ simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
 simroll.target = 2000;
 %simroll.target = [2500, 2500, 2400, 2400, 2300, 2300, 2200, 2200, 2100, 2100, 2000, 2000, 2100, 2100, 2200, 2200, 2300, 2300, 2400, 2400]; % Target angular speed in RPM
+simroll.timeInPol = 1; % 1 if the first input for the rollout policy is the
+                       % simulation time
 
 %% Parameters for interacting with real system
 load_data_fcn = @readDataSTMstudio;

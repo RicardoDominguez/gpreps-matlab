@@ -1,5 +1,4 @@
 init_param;
-init_arbitrary_pol;
 og = hipol.muW;
 load('d4RolloutData.mat')
 eps = 4;
