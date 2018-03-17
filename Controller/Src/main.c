@@ -180,6 +180,8 @@ int main(void)
 	returnPolSampleT(&polSampleTime); //Time between policy samples
 	int pastSampleT = -1; //Last sample was sample numer pastSampleT
 	int currSampleT = 0; //This sample is sample number currSampleT
+	//Policy input
+	bool policyInputSpeed = 1;
 	
   /* USER CODE END 1 */
 
@@ -293,7 +295,11 @@ int main(void)
 			if(automaticControl){
 				currSampleT = elapsed_1ms / polSampleTime;
 				if(currSampleT != pastSampleT){ //polSampleTime has elapsed since past sample
-					sampleLookupTable(&automaticControlAction, elapsed_1ms, tableDelta, tableSize, tableOutput);
+					if(policyInputSpeed){ //Input to lookup table is speed
+						sampleLookupTable(&automaticControlAction, measuredSpeed, tableDelta, tableSize, tableOutput);
+					} else { //Input to lookup table is time elapsed
+						sampleLookupTable(&automaticControlAction, elapsed_1ms, tableDelta, tableSize, tableOutput);
+					}
 					PWM_duty_cycle = automaticControlAction;
 				}
 			}
