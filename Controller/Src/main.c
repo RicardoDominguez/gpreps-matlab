@@ -103,18 +103,21 @@ int main(void)
 	//Motor characteristics
 	float motorSpeedConstant = 0.004; // in volts per rpm
 	//float motorBrakeConstant = 0.001; // in volts per rpm
-	//float motorBrakeConstant = motorSpeedConstant; //Uncomment to see if brake constant impacts results
+	float motorBrakeConstant = motorSpeedConstant; //Uncomment to see if brake constant impacts results
 	uint8_t supplyVoltage = 12; //in volts
 	uint16_t maxMotorSpeed = 3000; //in rpmm
 	
 	//PI variables
-	bool pidEnabled = false;
-	//float Kp = 1.125;
-	//float Ki = 0.001;
-	//bool windupEnabled = true;
+	bool pidEnabled = true;
+	float Kp = 1.125;
+	float Ki = 0.001;
+	float windupGain = 0;
 	
 	//Automatic control (using a lookup table)
 	bool automaticControl = true;
+	bool policyInputSpeed = 0; //True if the input for the table is speed rather than time
+	bool repeatPolicy = 1; //When time limit is reached, start from the start
+
 	
 	//-------------------------------------------------------------------------------------------------
 	// VARIABLES NOT TO BE CHANGED
@@ -159,8 +162,8 @@ int main(void)
 	uint8_t lastHallPosition; //Last position of the hall sensors - used to compute motor velocity
 	
 	int demandedSpeed = 0;
-	//float speedErrorSum = 0.0; //Integral of the speed error
-	//int controlOutput; //PID output
+	float speedErrorSum = 0.0; //Integral of the speed error
+	int controlOutput; //PID output
 	int demandedPWM = 0; //Duty cycle proportional to the control output
 	
 	//Specifc for anti-windup (due to actuator saturation)
@@ -181,10 +184,7 @@ int main(void)
 	int pastSampleT = -1; //Last sample was sample numer pastSampleT
 	int currSampleT = 0; //This sample is sample number currSampleT
 	float rolloutDuration;
-	returnRollT(&rolloutDuration);
-	//Policy input
-	bool policyInputSpeed = 1;
-	
+	returnRollT(&rolloutDuration);	
 	
   /* USER CODE END 1 */
 
@@ -292,28 +292,44 @@ int main(void)
 		}
 		if (heartbeatDiff > 20) { //1ms stuff, get PID value
 			heartbeat_1ms = globalHeartbeat_50us;
+			
+			//Time elapsed since start
 			elapsed_1ms++;
-						
+			if((elapsed_1ms > rolloutDuration)&&(repeatPolicy)){
+					elapsed_1ms = 0;
+			}
+			
 			//Calculate control action
 			if(automaticControl){
 				if(elapsed_1ms <= rolloutDuration){ //Rollout has not finished
 					currSampleT = elapsed_1ms / polSampleTime;
 					if(currSampleT != pastSampleT){ //polSampleTime has elapsed since past sample
-						if(policyInputSpeed){ //Input to lookup table is speed
-							sampleLookupTable(&automaticControlAction, measuredSpeed, tableDelta, tableSize, tableOutput);
-						} else { //Input to lookup table is time elapsed
-							sampleLookupTable(&automaticControlAction, elapsed_1ms, tableDelta, tableSize, tableOutput);
+						if(pidEnabled){ //Output of lookup table is demanded speed
+							sampleLookupTable(&demandedSpeed, elapsed_1ms, tableDelta, tableSize, tableOutput);
+						} else { //Output of lookup table is PWM duty cycle
+							if(policyInputSpeed){ //Input to lookup table is speed
+								sampleLookupTable(&automaticControlAction, measuredSpeed, tableDelta, tableSize, tableOutput);
+							} else { //Input to lookup table is time elapsed
+								sampleLookupTable(&automaticControlAction, elapsed_1ms, tableDelta, tableSize, tableOutput);
+							}
+							PWM_duty_cycle = automaticControlAction;
 						}
-						PWM_duty_cycle = automaticControlAction;
+					}
+					if(pidEnabled){
+						PWM_duty_cycle = demandedPWM;
 					}
 				} else {
 					PWM_duty_cycle = 0;
 				}
+		} else {
+			if(pidEnabled){
+				PWM_duty_cycle = demandedPWM;
+			} else {
+				PWM_duty_cycle = accelPedalValue_scaled;
 			}
-			start_recording = 1; //Start recording using STMstudio
-			
 		}
-		
+		start_recording = 1; //Start recording using STMstudio
+	}
 		heartbeatDiff = globalHeartbeat_50us -  heartbeat_10ms;
 		if (heartbeatDiff & 0x80000000) {
      heartbeatDiff = ~heartbeatDiff + 1; 
@@ -329,14 +345,20 @@ int main(void)
 			//Pedal values and PID output
 			getScaledBrakeValue(&brakePedalVlaue_scaled, brakeMin_in, brakeRange); //Read brake pedal
 			getScaledAccelValue(&accelPedalValue_scaled, accelMin_in, accelRange); //Read accelearion pedal
-			getDemandedSpeed(&demandedSpeed, accelPedalValue_scaled, maxMotorSpeed); //Get the demanded speed
-																																							 //from accel pedal info
-			
-			//Control action going into the motor
-			if(!automaticControl){
-				if(pidEnabled){ PWM_duty_cycle = demandedPWM;}
-				else{ PWM_duty_cycle = accelPedalValue_scaled;}
+			if((!automaticControl)&&(pidEnabled)){
+				getDemandedSpeed(&demandedSpeed, accelPedalValue_scaled, maxMotorSpeed); //Get the demanded speed
+																																								 //from accel pedal info
 			}
+			
+			//PID stuff
+			if(pidEnabled){
+					//Apply PID - with anti-windup
+					getControlOutput(&controlOutput, demandedSpeed, measuredSpeed, actuatorSaturationPoint, 
+						&speedErrorSum, Kp, Ki, windupGain);
+					//Get the PWM duty cicle sing scalar control (volts per hz)
+					getDemandedPWM(&demandedPWM, controlOutput, motorSpeedConstant, motorBrakeConstant, supplyVoltage); 
+			}
+			
 			
   		getGearForward(&gearForward); //Sample gear forward/backward
 

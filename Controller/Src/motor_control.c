@@ -532,22 +532,20 @@ void scaleSaturationInt(int* val, int min_val, int max_val){
 	Return value:		None
 */
 void getControlOutput(int* controlOutput, int demandedSpeed, int measuredSpeed, float actuatorSaturationPoint, 
-	float* speedErrorSum, float Kp, float Ki, bool windupEnabled){
+	float* speedErrorSum, float Kp, float Ki, float windupGain){
 	
 	int speedError = demandedSpeed - measuredSpeed; //error
   (*controlOutput) = speedError*Kp + (*speedErrorSum);
 	
 	
 	float windup = 0; 
-	if(windupEnabled){ //Compute the windup
-		if((*controlOutput) > actuatorSaturationPoint){ //If positively saturated
-			windup = actuatorSaturationPoint - (*controlOutput);
-		} else if ((*controlOutput) < (actuatorSaturationPoint * -1)){ //If negatively saturated
-			windup = (actuatorSaturationPoint * -1) - (*controlOutput);
-		}
+	if((*controlOutput) > actuatorSaturationPoint){ //If positively saturated
+		windup = actuatorSaturationPoint - (*controlOutput);
+	} else if ((*controlOutput) < (actuatorSaturationPoint * -1)){ //If negatively saturated
+		windup = (actuatorSaturationPoint * -1) - (*controlOutput);
 	}
 	
-	(*speedErrorSum) = (*speedErrorSum) + Ki*speedError + windup;
+	(*speedErrorSum) = (*speedErrorSum) + Ki*speedError + windupGain*windup;
 }
 
 /*

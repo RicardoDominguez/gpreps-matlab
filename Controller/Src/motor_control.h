@@ -48,7 +48,7 @@ void computeHallSpeed(int* measuredSpeed, uint32_t globalHeartbeat_50us, uint8_t
 void getDemandedSpeed(int* demandedSpeed, int accelPedalValue_scaled, int maxMotorSpeed);
 void scaleSaturationInt(int* val, int min_val, int max_val);
 void getControlOutput(int* controlOutput, int demandedSpeed, int measuredSpeed, float actuatorSaturationPoint, 
-	float* speedErrorSum, float Kp, float Ki, bool windupEnabled);
+	float* speedErrorSum, float Kp, float Ki, float windupGain);
 void getDemandedPWM(int* demandedPWMdutyCicle, int controlOutput, float motorSpeedConstant, 
 	float motorBrakeConstant, uint8_t supplyVoltage);
 void getActuatorSaturationPoint(float* actuatorSaturationPoint, int supplyVoltage, float motorSpeedConstant);
