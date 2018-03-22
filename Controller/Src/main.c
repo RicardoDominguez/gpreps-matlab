@@ -118,7 +118,10 @@ int main(void)
 	bool automaticControl = true;
 	bool policyInputSpeed = 0; //True if the input for the table is speed rather than time
 	bool repeatPolicy = 1; //When time limit is reached, start from the start
-
+	bool regulateMaxChangePWM = 1;
+	
+	//Limit current going into the motor
+	int maxPWMDelta = 2000;
 	
 	//-------------------------------------------------------------------------------------------------
 	// VARIABLES NOT TO BE CHANGED
@@ -158,7 +161,10 @@ int main(void)
 
 	//Measuring speed usign hall effect sensors
 	int encoder_ticks = 0; //Number of hall effect changes sensed
-
+	
+	//Limit current in the motor
+	int pastDutyCycle = 0;
+	
 	//PID
 	uint8_t lastHallPosition; //Last position of the hall sensors - used to compute motor velocity
 	
@@ -272,6 +278,9 @@ int main(void)
 					}
 				
 					if (PWM_duty_cycle >= 0) { //Accelerate
+						if(regulateMaxChangePWM){ //See if PWM_duty_cycle needs to be reduced
+							regulateDeltaPWM(&PWM_duty_cycle, &pastDutyCycle, maxPWMDelta);
+						}
 						setDutyCiclePWM(Phases, PWM_duty_cycle);
 					} else { //Decelerate
 						setBrakingDutyCiclePWM(abs(PWM_duty_cycle));

@@ -383,6 +383,28 @@ void setBrakingDutyCiclePWM(int dutyValue){
 	TIM8->CCR2 = dutyValue; //Phase 3 Low
 }
 
+/*
+	Description: given the desired duty cycle and the past duty cycle, ensures that the difference
+	between the two does not exceed maxDelta (to avoid very abrupt acceleration or excessive current
+	spikes), but only if desDuty > pastDuty
+	
+	Input parameters:  desDuty - inputs desired duty cycle to be inputted to the motor
+														 - returns the duty cycle that should be inputted to the motor
+									   pastDuty - inputs past duty cycle supplied to the motor
+															- returns the duty cycle that should be inputted to the motor
+										 maxDelta - the maximum difference between desDuty and pastDuty (assuming desDuty
+																is > than pastDuty)
+
+	Return value: None
+
+*/
+void regulateDeltaPWM(int* desDuty, int* pastDuty, int maxDelta){
+	if(((*desDuty) - (*pastDuty)) > maxDelta){
+		(*desDuty) = (*pastDuty) + maxDelta;
+	}
+	(*pastDuty) = (*desDuty);
+}
+
 //-------------------------------------------------------------------------------------------------
 // FUNCTIONS FOR DEBUGGING
 //-------------------------------------------------------------------------------------------------
