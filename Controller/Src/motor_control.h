@@ -19,6 +19,7 @@ extern uint32_t hallLED_state; //To flash State Machine LED
 void startADC_HALs(void);
 uint16_t getRawBrakeValue(void);
 uint16_t getRawAccelValue(void);
+int getCurrentMeasurement(void);
 float scaleValue(uint16_t curr_val, uint16_t min_val, uint16_t range);
 void getScaledBrakeValue(uint16_t* scaledValue, uint16_t min_val, uint16_t range);
 void getScaledAccelValue(uint16_t* scaledValue, uint16_t min_val, uint16_t range);

@@ -81,6 +81,10 @@ uint16_t getRawBrakeValue(){
 	return HAL_ADC_GetValue(&hadc2);
 }
 
+int getCurrentMeasurement(){
+	return HAL_ADC_GetValue(&hadc2);
+}
+
 /*
 	Description: samples the acceleration pedal (hadc1)
 	

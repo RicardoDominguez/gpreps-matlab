@@ -60,6 +60,7 @@ uint32_t globalHeartbeat_50us = 0, heartbeat_100us = 0, heartbeat_1ms = 0, heart
 int measuredSpeed = 0;
 int PWM_duty_cycle = 0; 
 int start_recording = 0; //Rising edge to start recording
+int current;
 
 /* USER CODE END PV */
 
@@ -108,13 +109,13 @@ int main(void)
 	uint16_t maxMotorSpeed = 3000; //in rpmm
 	
 	//PI variables
-	bool pidEnabled = true;
+	bool pidEnabled = false;
 	float Kp = 1.125;
 	float Ki = 0.001;
 	float windupGain = 0;
 	
 	//Automatic control (using a lookup table)
-	bool automaticControl = true;
+	bool automaticControl = false;
 	bool policyInputSpeed = 0; //True if the input for the table is speed rather than time
 	bool repeatPolicy = 1; //When time limit is reached, start from the start
 
@@ -343,7 +344,7 @@ int main(void)
 			encoder_ticks = 0;
 			
 			//Pedal values and PID output
-			getScaledBrakeValue(&brakePedalVlaue_scaled, brakeMin_in, brakeRange); //Read brake pedal
+			//getScaledBrakeValue(&brakePedalVlaue_scaled, brakeMin_in, brakeRange); //Read brake pedal
 			getScaledAccelValue(&accelPedalValue_scaled, accelMin_in, accelRange); //Read accelearion pedal
 			if((!automaticControl)&&(pidEnabled)){
 				getDemandedSpeed(&demandedSpeed, accelPedalValue_scaled, maxMotorSpeed); //Get the demanded speed
@@ -365,6 +366,11 @@ int main(void)
 			startADC_HALs();
 			LED_stateMachine(systemState, Halls, globalHeartbeat_50us, hallLED_state); //Display hall effects
 																																								 //in STM LED's
+			
+			int rawCurrent = getCurrentMeasurement();
+			int amp0 = 3190;
+			float scale = 3.3 / (4096 * 0.066);
+			current = (amp0 - rawCurrent) * scale * 1000;
   	}
 
   /* USER CODE END WHILE */
