@@ -60,6 +60,7 @@ uint32_t globalHeartbeat_50us = 0, heartbeat_100us = 0, heartbeat_1ms = 0, heart
 int measuredSpeed = 0;
 int PWM_duty_cycle = 0; 
 int start_recording = 0; //Rising edge to start recording
+int demandedSpeed = 0;
 
 /* USER CODE END PV */
 
@@ -161,7 +162,6 @@ int main(void)
 	//PID
 	uint8_t lastHallPosition; //Last position of the hall sensors - used to compute motor velocity
 	
-	int demandedSpeed = 0;
 	float speedErrorSum = 0.0; //Integral of the speed error
 	int controlOutput; //PID output
 	int demandedPWM = 0; //Duty cycle proportional to the control output
