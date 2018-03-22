@@ -535,7 +535,14 @@ void getControlOutput(int* controlOutput, int demandedSpeed, int measuredSpeed, 
 	float* speedErrorSum, float Kp, float Ki, float windupGain){
 	
 	int speedError = demandedSpeed - measuredSpeed; //error
-  (*controlOutput) = speedError*Kp + (*speedErrorSum);
+		
+	int KpTerm = speedError * Kp;
+	
+	//Clamp the Kp output
+	int maxKpTerm = 1400;
+	if(KpTerm > maxKpTerm){ KpTerm = maxKpTerm;}
+	
+  (*controlOutput) = KpTerm + (*speedErrorSum);
 	
 	
 	float windup = 0; 
