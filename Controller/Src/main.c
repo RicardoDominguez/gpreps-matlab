@@ -60,7 +60,8 @@ uint32_t globalHeartbeat_50us = 0, heartbeat_100us = 0, heartbeat_1ms = 0, heart
 int measuredSpeed = 0;
 int PWM_duty_cycle = 0; 
 int start_recording = 0; //Rising edge to start recording
-int current;
+int current = 0;
+int demandedSpeed = 0;
 
 /* USER CODE END PV */
 
@@ -118,7 +119,10 @@ int main(void)
 	bool automaticControl = false;
 	bool policyInputSpeed = 0; //True if the input for the table is speed rather than time
 	bool repeatPolicy = 1; //When time limit is reached, start from the start
-
+	bool regulateMaxChangePWM = 1;
+	
+	//Limit current going into the motor
+	int maxPWMDelta = 2000;
 	
 	//-------------------------------------------------------------------------------------------------
 	// VARIABLES NOT TO BE CHANGED
@@ -158,11 +162,13 @@ int main(void)
 
 	//Measuring speed usign hall effect sensors
 	int encoder_ticks = 0; //Number of hall effect changes sensed
-
+	
+	//Limit current in the motor
+	int pastDutyCycle = 0;
+	
 	//PID
 	uint8_t lastHallPosition; //Last position of the hall sensors - used to compute motor velocity
 	
-	int demandedSpeed = 0;
 	float speedErrorSum = 0.0; //Integral of the speed error
 	int controlOutput; //PID output
 	int demandedPWM = 0; //Duty cycle proportional to the control output
@@ -273,6 +279,9 @@ int main(void)
 					}
 				
 					if (PWM_duty_cycle >= 0) { //Accelerate
+						if(regulateMaxChangePWM){ //See if PWM_duty_cycle needs to be reduced
+							regulateDeltaPWM(&PWM_duty_cycle, &pastDutyCycle, maxPWMDelta);
+						}
 						setDutyCiclePWM(Phases, PWM_duty_cycle);
 					} else { //Decelerate
 						setBrakingDutyCiclePWM(abs(PWM_duty_cycle));
@@ -366,11 +375,8 @@ int main(void)
 			startADC_HALs();
 			LED_stateMachine(systemState, Halls, globalHeartbeat_50us, hallLED_state); //Display hall effects
 																																								 //in STM LED's
-			
-			int rawCurrent = getCurrentMeasurement();
-			int amp0 = 3190;
-			float scale = 3.3 / (4096 * 0.066);
-			current = (amp0 - rawCurrent) * scale * 1000;
+			//Current measurement
+			current = getCurrentMeasurement();
   	}
 
   /* USER CODE END WHILE */

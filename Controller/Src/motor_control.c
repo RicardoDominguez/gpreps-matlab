@@ -81,8 +81,19 @@ uint16_t getRawBrakeValue(){
 	return HAL_ADC_GetValue(&hadc2);
 }
 
+/*
+	Description: return a measuremnt for the currnt
+	
+	Input parameters: 	None
+	
+	Return value:		int - sampled current value
+*/
 int getCurrentMeasurement(){
-	return HAL_ADC_GetValue(&hadc2);
+	int raw_analog = HAL_ADC_GetValue(&hadc2);
+	int amp0 = 0; //int amp0 = 3190;
+	float scale = 1;//float scale = 5 / (4096 * 0.066); //voltage / (10^12 * slope)
+	int current = (raw_analog - amp0) * scale * 1000;
+	return current;
 }
 
 /*
@@ -387,6 +398,28 @@ void setBrakingDutyCiclePWM(int dutyValue){
 	TIM8->CCR2 = dutyValue; //Phase 3 Low
 }
 
+/*
+	Description: given the desired duty cycle and the past duty cycle, ensures that the difference
+	between the two does not exceed maxDelta (to avoid very abrupt acceleration or excessive current
+	spikes), but only if desDuty > pastDuty
+	
+	Input parameters:  desDuty - inputs desired duty cycle to be inputted to the motor
+														 - returns the duty cycle that should be inputted to the motor
+									   pastDuty - inputs past duty cycle supplied to the motor
+															- returns the duty cycle that should be inputted to the motor
+										 maxDelta - the maximum difference between desDuty and pastDuty (assuming desDuty
+																is > than pastDuty)
+
+	Return value: None
+
+*/
+void regulateDeltaPWM(int* desDuty, int* pastDuty, int maxDelta){
+	if(((*desDuty) - (*pastDuty)) > maxDelta){
+		(*desDuty) = (*pastDuty) + maxDelta;
+	}
+	(*pastDuty) = (*desDuty);
+}
+
 //-------------------------------------------------------------------------------------------------
 // FUNCTIONS FOR DEBUGGING
 //-------------------------------------------------------------------------------------------------
@@ -539,7 +572,14 @@ void getControlOutput(int* controlOutput, int demandedSpeed, int measuredSpeed, 
 	float* speedErrorSum, float Kp, float Ki, float windupGain){
 	
 	int speedError = demandedSpeed - measuredSpeed; //error
-  (*controlOutput) = speedError*Kp + (*speedErrorSum);
+		
+	int KpTerm = speedError * Kp;
+	
+	//Clamp the Kp output
+	int maxKpTerm = 1400;
+	if(KpTerm > maxKpTerm){ KpTerm = maxKpTerm;}
+	
+  (*controlOutput) = KpTerm + (*speedErrorSum);
 	
 	
 	float windup = 0; 

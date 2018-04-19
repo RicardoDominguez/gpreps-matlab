@@ -40,6 +40,7 @@ void startTimerPWM(void);
 void setNullDutyCiclePWM(void);
 void setDutyCiclePWM(bool Phases[6], int dutyValue);
 void setBrakingDutyCiclePWM(int dutyValue);
+void regulateDeltaPWM(int* desDuty, int* pastDuty, int maxDelta);
 void LED_stateMachine (uint8_t systemState, bool Halls[3], uint32_t globalHeartbeat_50us, 
 	uint32_t hallLED_state);
 
