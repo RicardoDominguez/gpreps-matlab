@@ -13,5 +13,9 @@ disp 'Initializing algorithm...'; init_param;
 % Next step
 k = 1;
 
-% System rollout
-disp 'Exporting policy into files...'; system_rollout;
+% Initial system rollouts
+disp 'Initial rollouts...'; 
+for k = 1:NinitRolls
+    hipol.muW = normrnd(muW_mean, muW_dev, pol.nX, 1);
+    system_rollout; 
+end

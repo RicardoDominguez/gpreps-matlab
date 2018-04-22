@@ -17,6 +17,10 @@ data_file_name = 'log.txt';
 % Evaluate cost of train data
 rollout_costs(k) = cost_fcn(y(:, icos)', simroll.target);
 
+% Save policy from rollout
+store_pols{k, 1} = hipol.muW;
+save([archive_folder, base_file_name, 'Info.mat'], 'store_pols', 'rollout_costs')
+
 % Append to previous data extracted from rollouts
 X = [X; x]; Y = [Y; y];
 save([archive_folder, base_file_name, 'RolloutData.mat'], 'X', 'Y')

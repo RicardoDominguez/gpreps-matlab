@@ -9,11 +9,15 @@
 % Initialize scenario
 disp 'Initializing algorithm...'; init_param;
 
-for k = 1:K % Policy iterations
+% Initial rollouts
+fprintf('Policy iteration %d of %d.\n', k, K)  
+for k = 1:NinitRolls
+    hipol.muW = normrnd(muW_mean, muW_dev, pol.nX, 1);
+    system_rollout; 
+end
+
+for k = NinitRolls+1:K+NinitRolls % Policy iterations
     fprintf('Policy iteration %d of %d.\n', k, K)
-    
-    % System rollout
-    disp 'System rollout...'; system_rollout;
                                                
     % Train forward model
     disp 'Train models...'; train_forward_model;
@@ -22,11 +26,11 @@ for k = 1:K % Policy iterations
     disp 'Predict rewards...'; predict_reward;
 
     % Update high level policy
-    disp 'Updating policy...'; update_policy;                                                           
+    disp 'Updating policy...'; update_policy; 
+        
+    % System rollout
+    disp 'System rollout...'; system_rollout;
 end
-
-% Evaluation of the final policy
-disp 'Initiall rollout...'; system_rollout;
  
 % Archive
 end_archive;

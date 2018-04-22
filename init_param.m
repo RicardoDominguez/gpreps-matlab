@@ -38,6 +38,16 @@ base_file_name = 'd1';
 polSampleT = simroll.dt * 1000; % In ms
 controllerMaxRollTime = simroll.max_sim_time * 1000; % Duration of rollout
 
+%% Previous dynamics knowledge
+prev_data = 'dyndata/';
+use_prev_dyn_data = 0;
+dyndata_file = 'dynamics0.mat';
+if use_prev_dyn_data
+    load([prev_data, dyndata_file])
+else
+    X = []; Y = [];
+end
+
 %% Parameters of the low level policy
 pol.minU = 0;           % Minimum control action
 pol.maxU = 4200;        % Maximum control action
@@ -71,5 +81,4 @@ dual_fcn = @dual_function;
 %% Number of iterations
 K = 3;              % Number of policy iterations
 M = 10000;          % Number of simulated rollouts
-X = []; Y = [];
-InitRoll = 5;
+NinitRolls = 5;     % Number of initial rollouts
