@@ -15,3 +15,4 @@ The general data flow can be represented as:
 
 Design for energy optimization TODO:
 1. Main.c add option update only at sample rate when PID and automatic control
+2. Policy input speed/whatnot should be given by matlab

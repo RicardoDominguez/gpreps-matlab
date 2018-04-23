@@ -116,11 +116,11 @@ int main(void)
 	float windupGain = 0;
 	
 	//Automatic control (using a lookup table)
-	bool automaticControl = false;
+	bool automaticControl = true;
 	bool policyInputSpeed = 0; //True if the input for the table is speed rather than time
-	bool repeatPolicy = 1; //When time limit is reached, start from the start
-	bool regulateMaxChangePWM = 1; //Fix maximum PWM change to avoid large current spikes / abrupt behaviour
-	bool regulateTimeChangePWM = 1; //PWM can only change every T seconds, where T is sampling time
+	bool repeatPolicy = 0; //When time limit is reached, start from the start
+	bool regulateMaxChangePWM = 0; //Fix maximum PWM change to avoid large current spikes / abrupt behaviour
+	bool regulateTimeChangePWM = 0; //PWM can only change every T seconds, where T is sampling time
 	
 	//Limit current going into the motor
 	int maxPWMDelta = 2000;
