@@ -14,4 +14,4 @@ The general data flow can be represented as:
 6. Go to step 2 (K times)
 
 Design for energy optimization TODO:
-1. Main.c add option update only at sample rate
+1. Main.c add option update only at sample rate when PID and automatic control

@@ -119,7 +119,8 @@ int main(void)
 	bool automaticControl = false;
 	bool policyInputSpeed = 0; //True if the input for the table is speed rather than time
 	bool repeatPolicy = 1; //When time limit is reached, start from the start
-	bool regulateMaxChangePWM = 1;
+	bool regulateMaxChangePWM = 1; //Fix maximum PWM change to avoid large current spikes / abrupt behaviour
+	bool regulateTimeChangePWM = 1; //PWM can only change every T seconds, where T is sampling time
 	
 	//Limit current going into the motor
 	int maxPWMDelta = 2000;
@@ -308,11 +309,11 @@ int main(void)
 			if((elapsed_1ms > rolloutDuration)&&(repeatPolicy)){
 					elapsed_1ms = 0;
 			}
+			currSampleT = elapsed_1ms / polSampleTime;
 			
 			//Calculate control action
 			if(automaticControl){
 				if(elapsed_1ms <= rolloutDuration){ //Rollout has not finished
-					currSampleT = elapsed_1ms / polSampleTime;
 					if(currSampleT != pastSampleT){ //polSampleTime has elapsed since past sample
 						if(pidEnabled){ //Output of lookup table is demanded speed
 							sampleLookupTable(&demandedSpeed, elapsed_1ms, tableDelta, tableSize, tableOutput);
@@ -324,6 +325,7 @@ int main(void)
 							}
 							PWM_duty_cycle = automaticControlAction;
 						}
+						pastSampleT = currSampleT;
 					}
 					if(pidEnabled){
 						PWM_duty_cycle = demandedPWM;
@@ -332,10 +334,13 @@ int main(void)
 					PWM_duty_cycle = 0;
 				}
 		} else {
-			if(pidEnabled){
-				PWM_duty_cycle = demandedPWM;
-			} else {
-				PWM_duty_cycle = accelPedalValue_scaled;
+			if((!regulateTimeChangePWM)||(currSampleT != pastSampleT)){ //If regulateTimeCahangePWM = 0 always change PWM_duty_cycle
+				if(pidEnabled){
+					PWM_duty_cycle = demandedPWM;
+				} else {
+					PWM_duty_cycle = accelPedalValue_scaled;
+				}
+				pastSampleT = currSampleT;
 			}
 		}
 		start_recording = 1; //Start recording using STMstudio
