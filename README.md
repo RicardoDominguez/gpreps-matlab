@@ -1,4 +1,4 @@
-# GPREPSmotorTest
+# GPREPS
 This GPREPS implmentation is designed to interact with a physical system,
 where policy rollouts are conducted on said system and the GP forward
 models are trained with the resulting data.
@@ -12,3 +12,6 @@ The general data flow can be represented as:
 5. Update high level policy according to the result of the simulated
    rollouts.
 6. Go to step 2 (K times)
+
+Design for energy optimization TODO:
+1. Main.c add option update only at sample rate

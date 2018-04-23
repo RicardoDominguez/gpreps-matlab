@@ -18,6 +18,7 @@ dyndata/
 *.asv
 lookupTable.c
 lookupTable.h
+*.m~
 
 # OTHER
 # ------------------------------------------------------
