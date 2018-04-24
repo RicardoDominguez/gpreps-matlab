@@ -19,6 +19,7 @@ dyndata/
 lookupTable.c
 lookupTable.h
 *.m~
+*.md~
 
 # OTHER
 # ------------------------------------------------------
