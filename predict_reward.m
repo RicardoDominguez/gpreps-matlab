@@ -18,6 +18,7 @@ u = zeros(Ntraj, 1); % Control action, (T x 1)
 in = zeros(Ntraj, size(dyni, 2)); % GP input
 y = zeros(Ntraj, size(dyno, 2)); % Next state, GP output
 all_y = zeros(Ntraj, simroll.H); % Concatenation of all states outputed
+notdone = ones(Ntraj, 1); % If 0 the episode has finished (T x 1)
 
 % If the policy depends on the time, this vector is required
 eps_time = 0.01*ones(Ntraj, 1);
@@ -25,24 +26,28 @@ eps_time = 0.01*ones(Ntraj, 1);
 for t = 1:simroll.H  % Each step within horizon
     tic
     
-    % Trajectories finished   
+    % Trajectories finished
+    if useMaxVar
+        notdone = x(:, iMaxVar) < simroll.maxVar; % T x 1
+    end
+    
     % Sample from low level policy
-    if simroll.timeInPol, xPol = [eps_time, x(:, ipol)];
+    if simroll.timeInPol, xPol = [eps_time, x(:, ipol)]; % Add time to policy
     else, xPol = x(:, ipol);
     end
-    u = policyvec(pol, polWs, xPol); % T x 1
+    u(notdone) = policyvec(pol, polWs(:, notdone), xPol(notdone, :)); % T x 1
     
     % Predict next step
-    xU = [x, u];
-    in = xU(:, dyni) .* scal; % Inputs do dynamic model, scaled
+    xU = [x(notdone, :), u(notdone)]; % N x (nS + 1)
+    in(notdone) = xU(:, dyni) .* scal; % Inputs do dynamic model, scaled
     for i = 1:nout
-        y(:, i) = predict(GPmodels{i}, in(:, :));
+        y(notdone, i) = predict(GPmodels{i}, in(notdone, :));
     end
 
     % Update variables by differences
-    y(:, difi) = y(:, difi) + x(:, difi);
+    y(notdone, difi) = y(notdone, difi) + x(notdone, difi);
     all_y(:, t) = y(:, 1);
-    x(:, :) = y(:, :);
+    x(notdone, :) = y(notdone, :);
     
     % Update simulation time
     eps_time = eps_time + simroll.dt;
@@ -52,7 +57,7 @@ for t = 1:simroll.H  % Each step within horizon
 end
 
 % Reward associated with the episode
-cost = cost_fcn(all_y, simroll.target); % T x 1
+cost = cost_fcn(y, simroll); % T x 1
 
 Wdataset = polWs'; % T x W
 Rdataset = cost; % T x 1

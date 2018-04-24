@@ -17,7 +17,8 @@
 %
 % Last modified: 2018-02
 %
-function C = cost_fcn(all_y, target)
+function C = cost_no_max_var(all_y, simroll)
+    target = simroll.target;
     k = 1000; % Scale factor
     k2 = 1e8;
     C = sum(abs(all_y - target), 2);

@@ -15,7 +15,7 @@ data_file_name = 'log.txt';
 [x, y] = load_data_fcn(data_file_name, simroll);
 
 % Evaluate cost of train data
-rollout_costs(k) = cost_fcn(y(:, icos)', simroll.target);
+rollout_costs(k) = cost_fcn(y(:, icos)', simroll);
 
 % Save policy from rollout
 store_pols{k, 1} = hipol.muW;

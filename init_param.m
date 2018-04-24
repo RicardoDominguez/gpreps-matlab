@@ -18,13 +18,18 @@ icos = [3];         % Index for cost function
 ipol = [1];         % Index for policy
 
 %% Parameters of the simulated rollout
-simroll.max_sim_time = 10;          % (in seconds)
-simroll.dt = 0.5;                     % (in seconds)
+simroll.max_sim_time = 10; % (in seconds)
+simroll.dt = 0.5; % (in seconds)
 simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
 simroll.target = 0; % Lowest amount of energy possible
 simroll.timeInPol = 0; % 1 if the first input for the rollout policy is the
                        % simulation time
+% Terminate simulation if iMaxVar variable is > than maxVar
+simroll.useMaxVar = 1; % 1 to activate the option
+simroll.iMaxVar = 1; % In this case x
+simroll.maxVar = 100;
+simroll.iCost = icos;
 
 %% Parameters for interacting with real system
 load_data_fcn = @readDataSTMstudio;
@@ -45,6 +50,13 @@ if use_prev_dyn_data
     load([prev_data, dyndata_file])
 else
     X = []; Y = [];
+end
+
+%% Cost function
+if simroll.useMaxVar
+    cost_fcn = @cost_max_var;
+else
+    cost_fcn = @cost_no_max_var;
 end
 
 %% Parameters of the low level policy
