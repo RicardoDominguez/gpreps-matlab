@@ -13,12 +13,12 @@ clear; addpath('pol', 'minim', 'cost', 'rollout', 'archiving');
 dyni = [2, 4];      % Inputs
 dyno = [1, 2, 3];   % Outputs
 difi = [1, 2, 3];   % Trained by differences
-scal = [1];         % Scale on inputs
+scal = [1 1];       % Scale on inputs
 icos = [3];         % Index for cost function
 ipol = [1];         % Index for policy
 
 %% Parameters of the simulated rollout
-simroll.max_sim_time = 10; % (in seconds)
+simroll.max_sim_time = 20; % (in seconds)
 simroll.dt = 0.5; % (in seconds)
 simroll.initX = zeros(size(dyno));  % Initial system state
 simroll.H = simroll.max_sim_time / simroll.dt; % Horizon of sim rollout
@@ -28,7 +28,7 @@ simroll.timeInPol = 0; % 1 if the first input for the rollout policy is the
 % Terminate simulation if iMaxVar variable is > than maxVar
 simroll.useMaxVar = 1; % 1 to activate the option
 simroll.iMaxVar = 1; % In this case x
-simroll.maxVar = 100;
+simroll.maxVar = 5e4;
 simroll.iCost = icos;
 
 %% Parameters for interacting with real system
@@ -78,8 +78,8 @@ deviation = 200; % Allows to tune the high level policy covariance matrix.
                  % Higher, more exploration
 % Check if distribution is satisfacotry using
 % distribution using histogram(normrnd(muW_mean, muW_dev, 1000));
-muW_mean = 3000;
-muW_dev  = muW_mean / 10;
+muW_mean = 2700;
+muW_dev  = muW_mean / 3;
 % Initial high policy mean equal to low level policy mean
 hipol.muW = normrnd(muW_mean, muW_dev, pol.nX, 1);
 hipol.sigmaW = eye(pol.nX) .* (deviation^2); % High level policy cov matrix
@@ -93,4 +93,4 @@ dual_fcn = @dual_function;
 %% Number of iterations
 K = 3;              % Number of policy iterations
 M = 10000;          % Number of simulated rollouts
-NinitRolls = 5;     % Number of initial rollouts
+NinitRolls = 20;     % Number of initial rollouts

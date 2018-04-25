@@ -17,14 +17,9 @@ Design for energy optimization TODO:
 1. Main.c add option update only at sample rate when PID and automatic control
 2. Policy input speed/whatnot should be given by matlab
 3. There is a better way to handle not done rollouts
+4. Sample without changing input
 
 Procedure for the lab testing:
-1. Ensure STMstudio is recording all data properly (current direction)
-2. Ensure loadRolloutData works properly by extracting data
-3. Ensure all functions of gpreps.m work individually
-4. Rollout time 20 seconds at 0.5 step, check maximum current consumed and 
-maximum displacement for maximum input and for 2000U. Check consistency of
-this values. Adjust init parameters accordingly.
-5. Ensure all gpreps works
 6. Tune cost function accordingly so that policy changes sufficiently.
 7. Rollout normally
+

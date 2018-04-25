@@ -27,8 +27,8 @@ for t = 1:simroll.H  % Each step within horizon
     tic
     
     % Trajectories finished
-    if useMaxVar
-        notdone = x(:, iMaxVar) < simroll.maxVar; % T x 1
+    if simroll.useMaxVar
+        notdone = x(:, simroll.iMaxVar) < simroll.maxVar; % T x 1
     end
     
     % Sample from low level policy
@@ -38,8 +38,8 @@ for t = 1:simroll.H  % Each step within horizon
     u(notdone) = policyvec(pol, polWs(:, notdone), xPol(notdone, :)); % T x 1
     
     % Predict next step
-    xU = [x(notdone, :), u(notdone)]; % N x (nS + 1)
-    in(notdone) = xU(:, dyni) .* scal; % Inputs do dynamic model, scaled
+    xU = [x, u]; % N x (nS + 1)
+    in(notdone, :) = xU(notdone, dyni) .* scal; % Inputs do dynamic model, scaled
     for i = 1:nout
         y(notdone, i) = predict(GPmodels{i}, in(notdone, :));
     end

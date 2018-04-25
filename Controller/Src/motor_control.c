@@ -92,7 +92,7 @@ int getCurrentMeasurement(){
 	int raw_analog = HAL_ADC_GetValue(&hadc2);
 	int amp0 = 0; //int amp0 = 3190;
 	float scale = 1;//float scale = 5 / (4096 * 0.066); //voltage / (10^12 * slope)
-	int current = (raw_analog - amp0) * scale * 1000;
+	int current = (raw_analog - amp0) * scale;
 	return current;
 }
 
